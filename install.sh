@@ -1,34 +1,33 @@
 #!/data/data/com.termux/files/usr/bin/bash
-#===============================================================================#
-#                                                                               #
-#                 ███████╗ ██████╗ ██████╗ ██╗  ██╗███████╗███████╗              #
-#                 ╚══███╔╝██╔═══██╗██╔══██╗██║ ██╔╝██╔════╝██╔════╝              #
-#                   ███╔╝ ██║   ██║██████╔╝█████╔╝ ███████╗█████╗                #
-#                  ███╔╝  ██║   ██║██╔══██╗██╔═██╗ ╚════██║██╔══╝                #
-#                 ███████╗╚██████╔╝██║  ██║██║  ██╗███████║███████╗              #
-#                 ╚══════╝ ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝╚══════╝╚══════╝              #
-#                                                                               #
-#              ZorkSec-Termux - Professional Cybersecurity Platform             #
-#                                                                               #
-#      Automated Installation • Management • Verification • Updates            #
-#      200+ Cybersecurity Tools for Android (Termux)                            #
-#                                                                               #
-#  Author   : Mohammad Muneeruddin (Muneer461 / Zork)                           #
-#  GitHub   : https://github.com/Muneer461                                      #
-#  Project  : https://github.com/Muneer461/ZorkSec-Termux                       #
-#  License  : MIT License                                                       #
-#  Version  : 2.0.0                                                             #
-#                                                                               #
-#===============================================================================#
+#==============================================================================#
+#                                                                              #
+#                 ███████╗ ██████╗ ██████╗ ██╗  ██╗███████╗███████╗            #
+#                 ╚══███╔╝██╔═══██╗██╔══██╗██║ ██╔╝██╔════╝██╔════╝            #
+#                   ███╔╝ ██║   ██║██████╔╝█████╔╝ ███████╗█████╗              #
+#                  ███╔╝  ██║   ██║██╔══██╗██╔═██╗ ╚════██║██╔══╝              #
+#                 ███████╗╚██████╔╝██║  ██║██║  ██╗███████║███████╗            #
+#                 ╚══════╝ ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝╚══════╝ ╚══════╝            #
+#                                                                              #
+#     ZorkSec-Termux — 200+ Cybersecurity Tools from GitHub Repos              #
+#                                                                              #
+#  ▸ Every tool CLONED from its official GitHub repository                     #
+#  ▸ Structure: ~/zorksec-tools/XX-Category/ToolName/                          #
+#  ▸ Symlinks created so tools run from anywhere in Termux                     #
+#  ▸ Categorized submenus with Install All OR pick individually                #
+#  ▸ NEW: Packages section for Termux base deps (python, go, etc.)            #
+#                                                                              #
+#  Author : Mohammad Muneeruddin (Muneer461 / Zork)                            #
+#  Repo   : https://github.com/Muneer461/ZorkSec-Termux                        #
+#  License: MIT                                                                #
+#  Version: 2.0.0                                                              #
+#                                                                              #
+#==============================================================================#
 
-# ====================== SAFETY SETTINGS ======================
 set -euo pipefail
 IFS=$'\n\t'
 
-# ====================== GLOBALS ======================
 VERSION="2.0.0"
 AUTHOR="Mohammad Muneeruddin (Muneer461 / Zork)"
-REPO_URL="https://github.com/Muneer461/ZorkSec-Termux"
 START_TIME=$(date +%s)
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CONFIG_DIR="${HOME}/.zorksec"
@@ -36,38 +35,24 @@ TOOLS_DIR="${HOME}/zorksec-tools"
 LOG_DIR="${SCRIPT_DIR}/logs"
 BACKUP_DIR="${CONFIG_DIR}/backups"
 PKG_DB="${CONFIG_DIR}/packages.db"
-TOTAL_PACKAGES=0
-INSTALLED_COUNT=0
-SKIPPED_COUNT=0
-UPDATED_COUNT=0
-FAILED_COUNT=0
-FAILED_TOOLS=""
+TOTAL_PACKAGES=0; INSTALLED_COUNT=0; SKIPPED_COUNT=0; UPDATED_COUNT=0; FAILED_COUNT=0; FAILED_TOOLS=""
 ARCH=$(uname -m)
 ANDROID_VER=$(getprop ro.build.version.release 2>/dev/null || echo "unknown")
 
-# ====================== COLOR CODES ======================
-R='\033[0m'; B='\033[1m'; D='\033[2m'; I='\033[3m'; U='\033[4m'
-BL='\033[0;30m'; Rr='\033[0;31m'; G='\033[0;32m'; Y='\033[0;33m'; BLE='\033[0;34m'; M='\033[0;35m'; C='\033[0;36m'; W='\033[0;37m'
-BGBL='\033[40m'; BGR='\033[41m'; BGG='\033[42m'; BGY='\033[43m'; BGBLE='\033[44m'; BGM='\033[45m'; BGC='\033[46m'; BGW='\033[47m'
+R='\033[0m'; B='\033[1m'; D='\033[2m'
+Rr='\033[0;31m'; G='\033[0;32m'; Y='\033[0;33m'; BLE='\033[0;34m'; M='\033[0;35m'; C='\033[0;36m'; W='\033[0;37m'
 
-# ====================== INITIALIZATION ======================
-mkdir -p "${CONFIG_DIR}" "${TOOLS_DIR}" "${BACKUP_DIR}"
-mkdir -p "${LOG_DIR}"
+mkdir -p "${CONFIG_DIR}" "${TOOLS_DIR}" "${BACKUP_DIR}" "${LOG_DIR}"
 : > "${LOG_DIR}/install.log" 2>/dev/null || true
 : > "${LOG_DIR}/errors.log" 2>/dev/null || true
 : > "${LOG_DIR}/success.log" 2>/dev/null || true
 : > "${PKG_DB}" 2>/dev/null || true
+exec 3>>"${LOG_DIR}/install.log" 4>>"${LOG_DIR}/errors.log" 5>>"${LOG_DIR}/success.log"
 
-exec 3>>"${LOG_DIR}/install.log"
-exec 4>>"${LOG_DIR}/errors.log"
-exec 5>>"${LOG_DIR}/success.log"
-
-# ====================== LOGGING FUNCTIONS ======================
-log_info()  { echo "[$(date '+%Y-%m-%d %H:%M:%S')] [INFO] $*" >&3; }
-log_error() { echo "[$(date '+%Y-%m-%d %H:%M:%S')] [ERROR] $*" >&4; echo -e "${Rr}[ERROR] $*${R}" >&2; }
+log_info()    { echo "[$(date '+%Y-%m-%d %H:%M:%S')] [INFO] $*" >&3; }
+log_error()   { echo "[$(date '+%Y-%m-%d %H:%M:%S')] [ERROR] $*" >&4; echo -e "${Rr}[ERROR] $*${R}" >&2; }
 log_success() { echo "[$(date '+%Y-%m-%d %H:%M:%S')] [SUCCESS] $*" >&5; }
 
-# ====================== UI FUNCTIONS ======================
 banner() {
     clear
     echo -e "${B}${Rr}"
@@ -79,63 +64,17 @@ banner() {
     echo '╚══════╝ ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝╚══════╝ ╚═════╝'
     echo -e "${R}"
     echo -e "${B}${BLE}═══════════════════════════════════════════════════════════════${R}"
-    echo -e "  ${B}${W}Termux Cybersecurity Platform v${VERSION}${R}"
-    echo -e "  ${D}Author : ${AUTHOR}${R}"
-    echo -e "  ${D}Arch   : ${ARCH} | Android: ${ANDROID_VER}${R}"
+    echo -e "  ${B}${W}ZorkSec-Termux v${VERSION}${R}"
+    echo -e "  ${D}All tools cloned from GitHub → ${TOOLS_DIR}/Category/ToolName/${R}"
+    echo -e "  ${D}Author: ${AUTHOR} | ${ARCH} | Android ${ANDROID_VER}${R}"
     echo -e "${B}${BLE}═══════════════════════════════════════════════════════════════${R}"
     echo ""
 }
 
-progress() {
-    local cur=$1 total=$2
-    local bar=40 pct=$((cur*100/total)) fill=$((cur*bar/total)) emp=$((bar-fill))
-    local barstr=$(printf "%-${fill}s" "=" | tr ' ' '=')
-    barstr="${barstr}$(printf "%-${emp}s" "" | tr ' ' ' ')"
-    echo -ne "\r${C}[${barstr}]${R} ${B}${pct}%${R} (${cur}/${total}) "
-}
+section() { echo ""; echo -e "${B}${BLE}┌─────────────────────────────────────────────────────────────┐${R}"; printf "${B}${BLE}│${R} %-59s ${B}${BLE}│${R}\n" "$1"; echo -e "${B}${BLE}└─────────────────────────────────────────────────────────────┘${R}"; }
+confirm() { read -r -p "$(echo -e "${Y}[?] $1 [y/N]:${R} ")" yn; case "${yn}" in [yY]*) return 0;; *) return 1;; esac; }
 
-confirm() {
-    local prompt="${1:-Continue?}"
-    read -r -p "$(echo -e "${Y}[?] ${prompt} [y/N]:${R} ")" yn
-    case "${yn}" in [yY]*) return 0;; *) return 1;; esac
-}
-
-section() {
-    echo ""; echo -e "${B}${BLE}┌─────────────────────────────────────────────────────────────┐${R}"
-    printf "${B}${BLE}│${R} %-59s ${B}${BLE}│${R}\n" "$1"
-    echo -e "${B}${BLE}└─────────────────────────────────────────────────────────────┘${R}"
-}
-
-sub() { echo -e "\n${B}${C}── $1${R}"; }
-
-# ====================== CORE HELPERS ======================
-check_termux() {
-    if [ ! -d "${PREFIX:-/data/data/com.termux/files/usr}" ]; then
-        echo -e "${Rr}[!] Must run inside Termux (Android).${R}"
-        echo -e "${Y}[!] Download from: https://f-droid.org/packages/com.termux/${R}"
-        exit 1
-    fi
-    log_info "Android ${ANDROID_VER} / ${ARCH}"
-}
-
-check_network() {
-    ping -c 1 -W 2 8.8.8.8 >/dev/null 2>&1 || ping -c 1 -W 2 1.1.1.1 >/dev/null 2>&1
-}
-
-check_storage() {
-    local req=${1:-500}
-    local avail=$(df "$HOME" 2>/dev/null | awk 'NR==2{print $4}')
-    local mb=$((avail/1024))
-    [ "$mb" -lt "$req" ] && echo -e "${Y}[!] Low storage: ${mb}MB free (${req}MB recommended)${R}" && return 1
-    return 0
-}
-
-record_pkg() {
-    local cat="$1" name="$2" status="$3"
-    echo "$(date '+%Y-%m-%d %H:%M:%S')|${cat}|${name}|${status}" >> "${PKG_DB}"
-    echo "$(date '+%Y-%m-%d %H:%M:%S')|${cat}|${name}|${status}" >> "${LOG_DIR}/packages.log"
-}
-
+record_pkg() { echo "$(date '+%Y-%m-%d %H:%M:%S')|$1|$2|$3" >> "${PKG_DB}"; echo "$(date '+%Y-%m-%d %H:%M:%S')|$1|$2|$3" >> "${LOG_DIR}/packages.log"; }
 update_stats() {
     case "$1" in
         installed) INSTALLED_COUNT=$((INSTALLED_COUNT+1)) ;;
@@ -146,687 +85,525 @@ update_stats() {
     TOTAL_PACKAGES=$((INSTALLED_COUNT+SKIPPED_COUNT+UPDATED_COUNT+FAILED_COUNT))
 }
 
-# ====================== INSTALLATION ENGINE ======================
-pkg_inst() {
-    local pkg=$1
-    pkg list-installed 2>/dev/null | grep -q "^${pkg}$" && return 0
-    echo -e "${C}[*] Installing package: ${pkg}${R}"
-    pkg install -y "${pkg}" 2>/dev/null || { log_error "pkg install failed: ${pkg}"; return 1; }
-    log_success "Installed: ${pkg}"; return 0
-}
-
-pip_inst() {
-    local pkg=$1
-    echo -e "${C}[*] Installing Python: ${pkg}${R}"
-    pip3 install --upgrade "${pkg}" 2>/dev/null || pip install --upgrade "${pkg}" 2>/dev/null || { log_error "pip install failed: ${pkg}"; return 1; }
-    log_success "Python installed: ${pkg}"; return 0
-}
-
-go_inst() {
-    local pkg=$1 bin=${2:-}
-    command -v go >/dev/null 2>&1 || pkg_inst "golang" || return 1
-    echo -e "${C}[*] Installing Go: ${pkg}${R}"
-    go install -v "${pkg}" 2>/dev/null || { log_error "Go install failed: ${pkg}"; return 1; }
-    [ -n "$bin" ] && [ -f "${HOME}/go/bin/${bin}" ] && cp "${HOME}/go/bin/${bin}" "${PREFIX}/bin/" 2>/dev/null || true
-    log_success "Go installed: ${pkg}"; return 0
-}
-
-cargo_inst() {
-    local pkg=$1
-    if ! command -v cargo >/dev/null 2>&1; then
-        [ -f "${HOME}/.cargo/env" ] && source "${HOME}/.cargo/env"
-        command -v cargo >/dev/null 2>&1 || { pkg_inst "rust" || return 1; }
-    fi
-    echo -e "${C}[*] Installing Cargo: ${pkg}${R}"
-    cargo install "${pkg}" 2>/dev/null || { log_error "Cargo install failed: ${pkg}"; return 1; }
-    log_success "Cargo installed: ${pkg}"; return 0
-}
-
-gem_inst() {
-    local pkg=$1
-    echo -e "${C}[*] Installing Ruby gem: ${pkg}${R}"
-    gem install "${pkg}" 2>/dev/null || { log_error "Gem install failed: ${pkg}"; return 1; }
-    log_success "Gem installed: ${pkg}"; return 0
-}
-
-git_inst() {
-    local url=$1 dir=$2
-    if [ -d "${dir}/.git" ]; then
-        echo -e "${C}[*] Updating: $(basename "${dir}")${R}"
-        (cd "${dir}" && git pull --ff-only 2>/dev/null) && return 0
-    fi
-    echo -e "${C}[*] Cloning: $(basename "${dir}")${R}"
-    git clone --depth 1 "${url}" "${dir}" 2>/dev/null || { log_error "Git clone failed: ${url}"; return 1; }
-    # Auto-detect dependencies
-    cd "${dir}"
-    [ -f "requirements.txt" ] && (pip3 install -r requirements.txt 2>/dev/null || pip install -r requirements.txt 2>/dev/null || true)
-    [ -f "setup.py" ] && (pip3 install -e . 2>/dev/null || true)
-    [ -f "pyproject.toml" ] && (pip3 install -e . 2>/dev/null || true)
-    [ -f "go.mod" ] && (go mod download 2>/dev/null || true)
-    [ -f "Cargo.toml" ] && (cargo build --release 2>/dev/null && [ -f "target/release/$(basename "${dir}")" ] && cp "target/release/$(basename "${dir}")" "${PREFIX}/bin/" 2>/dev/null || true)
-    [ -f "package.json" ] && (npm install 2>/dev/null || true)
-    [ -f "Gemfile" ] && (bundle install 2>/dev/null || true)
-    [ -f "Makefile" ] && (make 2>/dev/null && make install 2>/dev/null || true)
-    [ -f "install.sh" ] && (chmod +x install.sh && bash install.sh 2>/dev/null || true)
-    [ -f "setup.sh" ] && (chmod +x setup.sh && bash setup.sh 2>/dev/null || true)
-    cd "${SCRIPT_DIR}"
-    log_success "Cloned: $(basename "${dir}")"; return 0
-}
-
-verify_tool() {
-    local tool=$1
-    if command -v "${tool}" >/dev/null 2>&1; then
-        local ver
-        ver=$("${tool}" --version 2>/dev/null || "${tool}" -v 2>/dev/null || "${tool}" version 2>/dev/null || echo "")
-        log_success "Verified: ${tool} ${ver%%$'\n'*}"
+# ====================== GIT CLONE ENGINE ======================
+# Every tool gets cloned from GitHub. No pkg install for tools.
+git_clone_or_update() {
+    local repo_url="$1"
+    local target_dir="$2"
+    local tool_name
+    tool_name=$(basename "${target_dir}")
+    
+    if [ -d "${target_dir}/.git" ]; then
+        echo -e "${C}[*] Updating: ${tool_name}${R}"
+        (cd "${target_dir}" && git pull --ff-only 2>/dev/null) && {
+            log_success "Updated: ${tool_name}"
+            return 0
+        }
+        echo -e "${Y}[!] Update failed for ${tool_name}, continuing${R}"
         return 0
     fi
-    # Check in common locations
-    for p in "${HOME}/go/bin/${tool}" "${TOOLS_DIR}"/*/"${tool}" "${TOOLS_DIR}"/*/"${tool}/${tool}" "${PREFIX}/bin/${tool}"; do
-        [ -f "$p" ] && { chmod +x "$p" 2>/dev/null; ln -sf "$p" "${PREFIX}/bin/${tool}" 2>/dev/null; log_success "Linked: ${tool}"; return 0; }
-    done
-    log_error "Verification failed: ${tool} not found"
+    
+    echo -e "${C}[*] Cloning: ${tool_name}${R}"
+    mkdir -p "$(dirname "${target_dir}")"
+    if git clone --depth 1 "${repo_url}" "${target_dir}" 2>/dev/null; then
+        log_success "Cloned: ${tool_name}"
+        return 0
+    fi
+    log_error "Clone failed: ${repo_url}"
     return 1
 }
 
-# ====================== INSTALL SINGLE TOOL ======================
-install_tool() {
-    local tool=$1 category=$2
-    local dir="${TOOLS_DIR}/${category}/${tool}"
+# ====================== AUTO DEPENDENCY DETECTION ======================
+auto_deps() {
+    local dir="$1"
+    [ ! -d "${dir}" ] && return
+    cd "${dir}" || return
     
-    # Already installed check
-    if command -v "${tool}" >/dev/null 2>&1; then
-        echo -e "  ${G}[✓] Already available: ${tool}${R}"
-        update_stats "skipped"; record_pkg "${category}" "${tool}" "skipped"; return 0
-    fi
+    if [ -f "requirements.txt" ]; then echo -e "${D}  → requirements.txt${R}"; pip3 install -r requirements.txt 2>/dev/null || pip install -r requirements.txt 2>/dev/null || true; fi
+    if [ -f "setup.py" ]; then echo -e "${D}  → setup.py${R}"; pip3 install -e . 2>/dev/null || true; fi
+    if [ -f "pyproject.toml" ]; then echo -e "${D}  → pyproject.toml${R}"; pip3 install -e . 2>/dev/null || true; fi
+    if [ -f "go.mod" ]; then echo -e "${D}  → go.mod${R}"; go mod download 2>/dev/null || true; fi
+    if [ -f "Cargo.toml" ]; then echo -e "${D}  → Cargo.toml${R}"; cargo build --release 2>/dev/null || true; fi
+    if [ -f "package.json" ]; then echo -e "${D}  → package.json${R}"; npm install 2>/dev/null || true; fi
+    if [ -f "Gemfile" ]; then echo -e "${D}  → Gemfile${R}"; bundle install 2>/dev/null || true; fi
+    if [ -f "Makefile" ]; then echo -e "${D}  → Makefile${R}"; make 2>/dev/null || true; fi
+    if [ -f "install.sh" ]; then echo -e "${D}  → install.sh${R}"; chmod +x install.sh && bash install.sh 2>/dev/null || true; fi
+    if [ -f "setup.sh" ]; then echo -e "${D}  → setup.sh${R}"; chmod +x setup.sh && bash setup.sh 2>/dev/null || true; fi
+    if [ -f "configure" ]; then echo -e "${D}  → configure${R}"; chmod +x configure && ./configure 2>/dev/null && make 2>/dev/null || true; fi
+    if [ -f "CMakeLists.txt" ]; then echo -e "${D}  → CMakeLists.txt${R}"; [ -d build ] || mkdir build; cd build && cmake .. 2>/dev/null && make 2>/dev/null; cd "${dir}"; fi
     
-    echo -e "${C}[*] Installing: ${tool}${R}"
+    cd "${SCRIPT_DIR}" 2>/dev/null || true
+}
+
+# ====================== VERIFY & SYMLINK ======================
+verify_and_link() {
+    local tool_name="$1"
+    local tool_dir="$2"
     
-    case "${tool}" in
-        # === INFORMATION GATHERING ===
-        nmap)         pkg_inst "nmap" ;;
-        rustscan)     cargo_inst "rustscan" || { echo -e "${Y}[!] Trying binary...${R}"; curl -sSfL "https://github.com/RustScan/RustScan/releases/latest/download/rustscan_amd64.deb" -o /tmp/rustscan.deb 2>/dev/null && dpkg -i /tmp/rustscan.deb 2>/dev/null || pkg_inst "rustscan" || true; } ;;
-        masscan)      pkg_inst "masscan" ;;
-        naabu)        go_inst "github.com/projectdiscovery/naabu/v2/cmd/naabu@latest" "naabu" ;;
-        amass)        pkg_inst "amass" || go_inst "github.com/owasp-amass/amass/v4/...@master" "amass" ;;
-        assetfinder)  go_inst "github.com/tomnomnom/assetfinder@latest" "assetfinder" ;;
-        subfinder)    go_inst "github.com/projectdiscovery/subfinder/v2/cmd/subfinder@latest" "subfinder" ;;
-        findomain)    cargo_inst "findomain" ;;
-        bbot)         pip_inst "bbot" || git_inst "https://github.com/blacklanternsecurity/bbot.git" "${dir}" ;;
-        theharvester) git_inst "https://github.com/laramies/theHarvester.git" "${dir}" ;;
-        dnsx)         go_inst "github.com/projectdiscovery/dnsx/cmd/dnsx@latest" "dnsx" ;;
-        dnsrecon)     git_inst "https://github.com/darkoperator/dnsrecon.git" "${dir}" && cd "${dir}" && pip3 install -r requirements.txt 2>/dev/null && cd "${SCRIPT_DIR}" && ln -sf "${dir}/dnsrecon" "${PREFIX}/bin/dnsrecon" 2>/dev/null || true ;;
-        dnsenum)      pkg_inst "dnsenum" || git_inst "https://github.com/fwaeytens/dnsenum.git" "${dir}" ;;
-        massdns)      git_inst "https://github.com/blechschmidt/massdns.git" "${dir}" && cd "${dir}" && make 2>/dev/null && cp bin/massdns "${PREFIX}/bin/" 2>/dev/null && cd "${SCRIPT_DIR}" ;;
-        fierce)       pip_inst "fierce" || git_inst "https://github.com/mschwager/fierce.git" "${dir}" ;;
-        httpx)        go_inst "github.com/projectdiscovery/httpx/cmd/httpx@latest" "httpx" ;;
-        httprobe)     go_inst "github.com/tomnomnom/httprobe@latest" "httprobe" ;;
-        katana)       go_inst "github.com/projectdiscovery/katana/cmd/katana@latest" "katana" ;;
-        gau)          go_inst "github.com/lc/gau/v2/cmd/gau@latest" "gau" ;;
-        waybackurls)  go_inst "github.com/tomnomnom/waybackurls@latest" "waybackurls" ;;
-        hakrawler)    go_inst "github.com/hakluke/hakrawler@latest" "hakrawler" ;;
-        # === OSINT ===
-        sherlock)     git_inst "https://github.com/sherlock-project/sherlock.git" "${dir}" && (cd "${dir}" && pip3 install -r requirements.txt 2>/dev/null) && ln -sf "${dir}/sherlock" "${PREFIX}/bin/sherlock" 2>/dev/null || true ;;
-        maigret)      pip_inst "maigret" || git_inst "https://github.com/soxoj/maigret.git" "${dir}" ;;
-        phoneinfoga)  git_inst "https://github.com/sundowndev/phoneinfoga.git" "${dir}" && (cd "${dir}" && go build -o phoneinfoga 2>/dev/null && cp phoneinfoga "${PREFIX}/bin/" 2>/dev/null) || true ;;
-        holehe)       pip_inst "holehe" || git_inst "https://github.com/megadose/holehe.git" "${dir}" ;;
-        social-analyzer) git_inst "https://github.com/qeeqbox/social-analyzer.git" "${dir}" ;;
-        ghunt)        git_inst "https://github.com/mxrch/GHunt.git" "${dir}" ;;
-        # === WEB SECURITY ===
-        ffuf)         go_inst "github.com/ffuf/ffuf/v2@latest" "ffuf" ;;
-        gobuster)     go_inst "github.com/OJ/gobuster/v3@latest" "gobuster" ;;
-        dirsearch)    git_inst "https://github.com/maurosoria/dirsearch.git" "${dir}" && ln -sf "${dir}/dirsearch.py" "${PREFIX}/bin/dirsearch" 2>/dev/null && chmod +x "${PREFIX}/bin/dirsearch" 2>/dev/null || true ;;
-        feroxbuster)  cargo_inst "feroxbuster" ;;
-        nikto)        pkg_inst "nikto" || git_inst "https://github.com/sullo/nikto.git" "${dir}" && ln -sf "${dir}/program/nikto.pl" "${PREFIX}/bin/nikto" 2>/dev/null || true ;;
-        nuclei)       go_inst "github.com/projectdiscovery/nuclei/v3/cmd/nuclei@latest" "nuclei" && nuclei -update-templates 2>/dev/null || true ;;
-        wpscan)       gem_inst "wpscan" ;;
-        dalfox)       go_inst "github.com/hahwul/dalfox/v2@latest" "dalfox" ;;
-        xsstrike)     git_inst "https://github.com/s0md3v/XSStrike.git" "${dir}" && (cd "${dir}" && pip3 install -r requirements.txt 2>/dev/null && ln -sf "${dir}/xsstrike.py" "${PREFIX}/bin/xsstrike" 2>/dev/null) || true ;;
-        paramspider)  git_inst "https://github.com/devanshbatham/ParamSpider.git" "${dir}" && (cd "${dir}" && pip3 install -r requirements.txt 2>/dev/null) && ln -sf "${dir}/paramspider.py" "${PREFIX}/bin/paramspider" 2>/dev/null || true ;;
-        arjun)        pip_inst "arjun" || git_inst "https://github.com/s0md3v/Arjun.git" "${dir}" ;;
-        # === NETWORK ===
-        tcpdump)      pkg_inst "tcpdump" ;;
-        tshark)       pkg_inst "tshark" ;;
-        termshark)    pkg_inst "termshark" || go_inst "github.com/gcla/termshark/v2/cmd/termshark@latest" "termshark" ;;
-        netcat)       pkg_inst "netcat-openbsd" ;;
-        socat)        pkg_inst "socat" ;;
-        bettercap)    pkg_inst "root-repo" 2>/dev/null; pkg_inst "bettercap" || go_inst "github.com/bettercap/bettercap@latest" "bettercap" ;;
-        # === WIRELESS ===
-        aircrack-ng)  pkg_inst "aircrack-ng" || git_inst "https://github.com/aircrack-ng/aircrack-ng.git" "${dir}" ;;
-        hcxdumptool)  pkg_inst "hcxdumptool" ;;
-        reaver)       pkg_inst "reaver" ;;
-        mdk4)         pkg_inst "mdk4" || pkg_inst "mdk3" || true ;;
-        kismet)       pkg_inst "kismet" ;;
-        wifite)       git_inst "https://github.com/derv82/wifite2.git" "${dir}" && ln -sf "${dir}/Wifite.py" "${PREFIX}/bin/wifite" 2>/dev/null || true ;;
-        # === PASSWORD AUDITING ===
-        john)         pkg_inst "john" ;;
-        hashcat)      pkg_inst "hashcat" ;;
-        hydra)        pkg_inst "hydra" ;;
-        crunch)       pkg_inst "crunch" ;;
-        cewl)         gem_inst "cewl" || git_inst "https://github.com/digininja/CeWL.git" "${dir}" && (cd "${dir}" && gem build cewl.gemspec 2>/dev/null && gem install cewl*.gem 2>/dev/null) || true ;;
-        hash-identifier) git_inst "https://github.com/psypanda/hashID.git" "${dir}" && ln -sf "${dir}/hashid.py" "${PREFIX}/bin/hashid" 2>/dev/null || true ;;
-        # === EXPLOITATION ===
-        metasploit)   cabal_install_metasploit ;;
-        sqlmap)       git_inst "https://github.com/sqlmapproject/sqlmap.git" "${dir}" && ln -sf "${dir}/sqlmap.py" "${PREFIX}/bin/sqlmap" 2>/dev/null || true ;;
-        commix)       git_inst "https://github.com/commixproject/commix.git" "${dir}" && ln -sf "${dir}/commix.py" "${PREFIX}/bin/commix" 2>/dev/null || true ;;
-        searchsploit) pkg_inst "exploitdb" ;;
-        beef)         git_inst "https://github.com/beefproject/beef.git" "${dir}" && (cd "${dir}" && ./install 2>/dev/null || true) && ln -sf "${dir}/beef" "${PREFIX}/bin/beef" 2>/dev/null || true ;;
-        yersinia)     pkg_inst "yersinia" ;;
-        setoolkit)    git_inst "https://github.com/trustedsec/social-engineer-toolkit.git" "${dir}" && (cd "${dir}" && pip3 install -r requirements.txt 2>/dev/null && python setup.py 2>/dev/null) && ln -sf "${dir}/setoolkit" "${PREFIX}/bin/setoolkit" 2>/dev/null || true ;;
-        # === POST EXPLOITATION ===
-        empire)       git_inst "https://github.com/BC-SECURITY/Empire.git" "${dir}" && (cd "${dir}" && pip3 install -r requirements.txt 2>/dev/null && python setup.py 2>/dev/null) || true ;;
-        pwncat)       pip_inst "pwncat-cs" || pip_inst "pwncat" || true ;;
-        chisel)       go_inst "github.com/jpillora/chisel@latest" "chisel" ;;
-        ligolo-ng)    go_inst "github.com/nicocha30/ligolo-ng/cmd/ligolo-agent@latest" "ligolo-agent" && go_inst "github.com/nicocha30/ligolo-ng/cmd/ligolo-proxy@latest" "ligolo-proxy" ;;
-        # === REVERSE ENGINEERING ===
-        radare2)      command -v r2 >/dev/null 2>&1 || { git clone --depth 1 "https://github.com/radareorg/radare2" "${dir}" 2>/dev/null && cd "${dir}" && bash sys/termux.sh 2>/dev/null; } || pkg_inst "radare2" || true; cd "${SCRIPT_DIR}" ;;
-        strings)      pkg_inst "binutils" ;;
-        binwalk)      git_inst "https://github.com/ReFirmLabs/binwalk.git" "${dir}" && (cd "${dir}" && pip3 install -r requirements.txt 2>/dev/null && python setup.py install 2>/dev/null) || true ;;
-        apktool)      pkg_inst "apktool" ;;
-        jadx)         git_inst "https://github.com/skylot/jadx.git" "${dir}" && (cd "${dir}" && ./gradlew dist 2>/dev/null) || true ;;
-        # === MALWARE ANALYSIS / FORENSICS ===
-        clamav)       pkg_inst "clamav" ;;
-        volatility)   git_inst "https://github.com/volatilityfoundation/volatility3.git" "${dir}" && ln -sf "${dir}/vol.py" "${PREFIX}/bin/volatility" 2>/dev/null && chmod +x "${PREFIX}/bin/volatility" 2>/dev/null || true ;;
-        yara)         pkg_inst "yara" ;;
-        exiftool)     pkg_inst "exiftool" ;;
-        foremost)     pkg_inst "foremost" ;;
-        sleuthkit)    pkg_inst "sleuthkit" ;;
-        # === THREAT INTEL ===
-        sigma)        git_inst "https://github.com/SigmaHQ/sigma.git" "${dir}" ;;
-        misp-client)  pip_inst "pymisp" || git_inst "https://github.com/MISP/MISP.git" "${dir}" ;;
-        # === ADDITIONAL ATTACK TOOLS ===
-        mitmproxy)    pip_inst "mitmproxy" || true ;;
-        ettercap)     pkg_inst "ettercap" ;;
-        dnsspoof)     pkg_inst "dsniff" ;;
-        macchanger)   pkg_inst "macchanger" ;;
-        medusa)       pkg_inst "medusa" ;;
-        ncrack)       git_inst "https://github.com/nmap/ncrack.git" "${dir}" && (cd "${dir}" && ./configure 2>/dev/null && make 2>/dev/null && cp ncrack "${PREFIX}/bin/" 2>/dev/null) || true ;;
-        patator)      pip_inst "patator" || git_inst "https://github.com/lanjelot/patator.git" "${dir}" ;;
-        # === UTILITIES ===
-        git)          command -v git >/dev/null 2>&1 || pkg_inst "git" ;;
-        curl)         command -v curl >/dev/null 2>&1 || pkg_inst "curl" ;;
-        wget)         command -v wget >/dev/null 2>&1 || pkg_inst "wget" ;;
-        nano)         command -v nano >/dev/null 2>&1 || pkg_inst "nano" ;;
-        vim)          command -v vim >/dev/null 2>&1 || pkg_inst "vim" ;;
-        tmux)         pkg_inst "tmux" ;;
-        tree)         pkg_inst "tree" ;;
-        zip)          pkg_inst "zip" ;;
-        unzip)        pkg_inst "unzip" ;;
-        # === FALLBACK ===
-        *)            pkg_inst "${tool}" || pip_inst "${tool}" || { echo -e "${Y}[!] Trying git clone...${R}"; git_inst "https://github.com/search?q=${tool}" "${dir}" 2>/dev/null || true; } ;;
-    esac
-    
-    local result=$?
-    if [ $result -eq 0 ]; then
-        verify_tool "${tool}" || true
-        update_stats "installed"; record_pkg "${category}" "${tool}" "installed"
-        echo -e "  ${G}[✓] ${tool} installed successfully!${R}"
+    # Find the executable
+    local exe=""
+    if [ -f "${tool_dir}/${tool_name}" ]; then
+        exe="${tool_dir}/${tool_name}"
+    elif [ -f "${tool_dir}/${tool_name}.py" ]; then
+        exe="${tool_dir}/${tool_name}.py"
+    elif [ -f "${tool_dir}/bin/${tool_name}" ]; then
+        exe="${tool_dir}/bin/${tool_name}"
+    elif [ -f "${tool_dir}/src/${tool_name}" ]; then
+        exe="${tool_dir}/src/${tool_name}"
+    elif [ -f "${tool_dir}/target/release/${tool_name}" ]; then
+        exe="${tool_dir}/target/release/${tool_name}"
     else
-        update_stats "failed" "${tool}"; record_pkg "${category}" "${tool}" "failed"
-        echo -e "  ${Rr}[✗] ${tool} installation FAILED${R}"
+        exe=$(find "${tool_dir}" -maxdepth 3 -type f -name "${tool_name}" 2>/dev/null | head -1)
     fi
-    return $result
+    
+    # Also check if it's in PATH already
+    if command -v "${tool_name}" >/dev/null 2>&1; then
+        echo -e "  ${G}[✓] ${tool_name} available in PATH${R}"
+        log_success "Verified in PATH: ${tool_name}"
+        return 0
+    fi
+    
+    # Create symlink if we found the executable
+    if [ -n "${exe}" ] && [ -f "${exe}" ]; then
+        chmod +x "${exe}" 2>/dev/null || true
+        ln -sf "${exe}" "${PREFIX}/bin/${tool_name}" 2>/dev/null || {
+            cp "${exe}" "${PREFIX}/bin/${tool_name}" 2>/dev/null || true
+        }
+        echo -e "  ${G}[✓] ${tool_name} symlinked to ${PREFIX}/bin/${tool_name}${R}"
+        log_success "Linked: ${tool_name}"
+        return 0
+    fi
+    
+    echo -e "  ${Y}[!] ${tool_name}: executable not found, but repo is at ${tool_dir}${R}"
+    log_info "Tool repo cloned but no executable found: ${tool_name}"
+    return 0  # Don't fail, user can manually run from the directory
 }
 
-cabal_install_metasploit() {
-    if command -v msfconsole >/dev/null 2>&1; then echo -e "  ${G}[✓] Metasploit already installed${R}"; return 0; fi
-    echo -e "${Y}[!] Metasploit requires ~500MB+ and takes time${R}"
-    confirm "Install Metasploit?" || return 1
-    echo -e "${C}[*] Downloading Metasploit installer...${R}"
-    mkdir -p "${TOOLS_DIR}/exploitation"
-    cd "${TOOLS_DIR}/exploitation"
-    curl -fsSL "https://raw.githubusercontent.com/gushmazuko/metasploit_in_termux/master/metasploit.sh" -o metasploit_install.sh
-    chmod +x metasploit_install.sh
-    bash metasploit_install.sh 2>/dev/null || { echo -e "${Y}[!] Trying pkg...${R}"; pkg_inst "metasploit" 2>/dev/null || true; }
-    cd "${SCRIPT_DIR}"
-    command -v msfconsole >/dev/null 2>&1 && log_success "Metasploit installed" && return 0
+# ====================== INSTALL A SINGLE GIT TOOL ======================
+install_git_tool() {
+    local repo_url="$1"
+    local tool_name="$2"
+    local category="$3"
+    local target_dir="${TOOLS_DIR}/${category}/${tool_name}"
+    
+    # Already exists
+    if command -v "${tool_name}" >/dev/null 2>&1; then
+        echo -e "  ${G}[✓] Already in PATH: ${tool_name}${R}"
+        update_stats "skipped"; record_pkg "${category}" "${tool_name}" "skipped"
+        return 0
+    fi
+    
+    echo -e "${C}[*] Installing: ${tool_name}${R}"
+    echo -e "${D}  Repo: ${repo_url}${R}"
+    echo -e "${D}  Dir:  ${target_dir}${R}"
+    
+    if git_clone_or_update "${repo_url}" "${target_dir}"; then
+        auto_deps "${target_dir}"
+        verify_and_link "${tool_name}" "${target_dir}"
+        update_stats "installed"; record_pkg "${category}" "${tool_name}" "installed"
+        echo -e "  ${G}[✓] ${tool_name} done${R}"
+        return 0
+    fi
+    
+    update_stats "failed" "${tool_name}"; record_pkg "${category}" "${tool_name}" "failed"
+    echo -e "  ${Rr}[✗] ${tool_name} FAILED${R}"
     return 1
 }
 
-# ====================== SUBMENU SYSTEM ======================
-# Each submenu has: 0) Back to Main  1) Install All Category  2+) Individual tools
+# ====================== CATEGORY DEFINITIONS WITH GITHUB URLS ======================
 
-submenu_info_gathering() {
-    local tools=(nmap rustscan masscan naabu amass assetfinder subfinder findomain bbot theharvester dnsx dnsrecon dnsenum massdns fierce httpx httprobe katana gau waybackurls hakrawler)
+# Mapping: tool_name -> github_repo_url
+declare -A GIT_REPOS
+
+# 01-Information-Gathering
+GIT_REPOS[nmap]="https://github.com/nmap/nmap.git"
+GIT_REPOS[rustscan]="https://github.com/RustScan/RustScan.git"
+GIT_REPOS[masscan]="https://github.com/robertdavidgraham/masscan.git"
+GIT_REPOS[naabu]="https://github.com/projectdiscovery/naabu.git"
+GIT_REPOS[amass]="https://github.com/owasp-amass/amass.git"
+GIT_REPOS[assetfinder]="https://github.com/tomnomnom/assetfinder.git"
+GIT_REPOS[subfinder]="https://github.com/projectdiscovery/subfinder.git"
+GIT_REPOS[findomain]="https://github.com/Findomain/Findomain.git"
+GIT_REPOS[bbot]="https://github.com/blacklanternsecurity/bbot.git"
+GIT_REPOS[theharvester]="https://github.com/laramies/theHarvester.git"
+GIT_REPOS[dnsx]="https://github.com/projectdiscovery/dnsx.git"
+GIT_REPOS[dnsrecon]="https://github.com/darkoperator/dnsrecon.git"
+GIT_REPOS[dnsenum]="https://github.com/fwaeytens/dnsenum.git"
+GIT_REPOS[massdns]="https://github.com/blechschmidt/massdns.git"
+GIT_REPOS[fierce]="https://github.com/mschwager/fierce.git"
+GIT_REPOS[httpx]="https://github.com/projectdiscovery/httpx.git"
+GIT_REPOS[httprobe]="https://github.com/tomnomnom/httprobe.git"
+GIT_REPOS[katana]="https://github.com/projectdiscovery/katana.git"
+GIT_REPOS[gau]="https://github.com/lc/gau.git"
+GIT_REPOS[waybackurls]="https://github.com/tomnomnom/waybackurls.git"
+GIT_REPOS[hakrawler]="https://github.com/hakluke/hakrawler.git"
+
+# 02-OSINT
+GIT_REPOS[sherlock]="https://github.com/sherlock-project/sherlock.git"
+GIT_REPOS[maigret]="https://github.com/soxoj/maigret.git"
+GIT_REPOS[phoneinfoga]="https://github.com/sundowndev/phoneinfoga.git"
+GIT_REPOS[holehe]="https://github.com/megadose/holehe.git"
+GIT_REPOS[social-analyzer]="https://github.com/qeeqbox/social-analyzer.git"
+GIT_REPOS[ghunt]="https://github.com/mxrch/GHunt.git"
+
+# 03-Subdomain-Enumeration
+GIT_REPOS[sublist3r]="https://github.com/aboul3la/Sublist3r.git"
+GIT_REPOS[subbrute]="https://github.com/TheRook/subbrute.git"
+
+# 04-DNS-Tools
+# (dnsrecon, dnsenum already in Info-Gathering, these are extras)
+
+# 05-Web-Security
+GIT_REPOS[ffuf]="https://github.com/ffuf/ffuf.git"
+GIT_REPOS[gobuster]="https://github.com/OJ/gobuster.git"
+GIT_REPOS[dirsearch]="https://github.com/maurosoria/dirsearch.git"
+GIT_REPOS[feroxbuster]="https://github.com/epi052/feroxbuster.git"
+GIT_REPOS[nikto]="https://github.com/sullo/nikto.git"
+GIT_REPOS[nuclei]="https://github.com/projectdiscovery/nuclei.git"
+GIT_REPOS[wpscan]="https://github.com/wpscanteam/wpscan.git"
+GIT_REPOS[dalfox]="https://github.com/hahwul/dalfox.git"
+GIT_REPOS[xsstrike]="https://github.com/s0md3v/XSStrike.git"
+GIT_REPOS[paramspider]="https://github.com/devanshbatham/ParamSpider.git"
+GIT_REPOS[arjun]="https://github.com/s0md3v/Arjun.git"
+
+# 06-Network-Tools
+GIT_REPOS[tcpdump]="https://github.com/the-tcpdump-group/tcpdump.git"
+GIT_REPOS[termshark]="https://github.com/gcla/termshark.git"
+GIT_REPOS[bettercap]="https://github.com/bettercap/bettercap.git"
+GIT_REPOS[nmap]="https://github.com/nmap/nmap.git"
+GIT_REPOS[masscan]="https://github.com/robertdavidgraham/masscan.git"
+GIT_REPOS[zmap]="https://github.com/zmap/zmap.git"
+
+# 07-Wireless-Security
+GIT_REPOS[aircrack-ng]="https://github.com/aircrack-ng/aircrack-ng.git"
+GIT_REPOS[hcxdumptool]="https://github.com/ZerBea/hcxdumptool.git"
+GIT_REPOS[reaver]="https://github.com/t6x/reaver-wps-fork-t6x.git"
+GIT_REPOS[mdk4]="https://github.com/aircrack-ng/mdk4.git"
+GIT_REPOS[kismet]="https://github.com/kismetwireless/kismet.git"
+GIT_REPOS[wifite2]="https://github.com/derv82/wifite2.git"
+GIT_REPOS[hackrf]="https://github.com/greatscottgadgets/hackrf.git"
+
+# 08-Password-Attack
+GIT_REPOS[john]="https://github.com/openwall/john.git"
+GIT_REPOS[hashcat]="https://github.com/hashcat/hashcat.git"
+GIT_REPOS[hydra]="https://github.com/vanhauser-thc/thc-hydra.git"
+GIT_REPOS[crunch]="https://github.com/jim3ma/crunch.git"
+GIT_REPOS[cewl]="https://github.com/digininja/CeWL.git"
+GIT_REPOS[hash-identifier]="https://github.com/psypanda/hashID.git"
+GIT_REPOS[medusa]="https://github.com/jmk-foofus/medusa.git"
+GIT_REPOS[ncrack]="https://github.com/nmap/ncrack.git"
+GIT_REPOS[patator]="https://github.com/lanjelot/patator.git"
+GIT_REPOS[hashcat-utils]="https://github.com/hashcat/hashcat-utils.git"
+GIT_REROS[secLists]="https://github.com/danielmiessler/SecLists.git"
+
+# 09-Exploitation
+GIT_REPOS[metasploit-framework]="https://github.com/rapid7/metasploit-framework.git"
+GIT_REPOS[sqlmap]="https://github.com/sqlmapproject/sqlmap.git"
+GIT_REPOS[commix]="https://github.com/commixproject/commix.git"
+GIT_REPOS[exploitdb]="https://github.com/offensive-security/exploitdb.git"
+GIT_REPOS[beef]="https://github.com/beefproject/beef.git"
+GIT_REPOS[yersinia]="https://github.com/tomac/yersinia.git"
+GIT_REPOS[setoolkit]="https://github.com/trustedsec/social-engineer-toolkit.git"
+GIT_REPOS[shellphish]="https://github.com/thelinuxchoice/shellphish.git"
+GIT_REPOS[hiddeneye]="https://github.com/DarkSecDevelopers/HiddenEye.git"
+GIT_REPOS[evilginx2]="https://github.com/kgretzky/evilginx2.git"
+
+# 10-Post-Exploitation
+GIT_REPOS[empire]="https://github.com/BC-SECURITY/Empire.git"
+GIT_REPOS[pwncat]="https://github.com/calebstewart/pwncat.git"
+GIT_REPOS[chisel]="https://github.com/jpillora/chisel.git"
+GIT_REPOS[ligolo-ng]="https://github.com/nicocha30/ligolo-ng.git"
+GIT_REPOS[phpsploit]="https://github.com/nil0x42/phpsploit.git"
+
+# 11-Reverse-Engineering
+GIT_REPOS[radare2]="https://github.com/radareorg/radare2.git"
+GIT_REPOS[binwalk]="https://github.com/RefirmLabs/binwalk.git"
+GIT_REPOS[apktool]="https://github.com/iBotPeaches/Apktool.git"
+GIT_REPOS[jadx]="https://github.com/skylot/jadx.git"
+GIT_REPOS[gdb]="https://github.com/bminor/binutils-gdb.git"
+GIT_REPOS[rizin]="https://github.com/rizinorg/rizin.git"
+GIT_REPOS[frida]="https://github.com/frida/frida.git"
+
+# 12-Malware-Analysis
+GIT_REPOS[clamav]="https://github.com/Cisco-Talos/clamav.git"
+GIT_REPOS[yara]="https://github.com/VirusTotal/yara.git"
+GIT_REPOS[strings]="https://github.com/mzpqnxow/strings.git"
+GIT_REPOS[capa]="https://github.com/mandiant/capa.git"
+GIT_REPOS[flare-floss]="https://github.com/mandiant/flare-floss.git"
+
+# 13-Digital-Forensics
+GIT_REPOS[volatility3]="https://github.com/volatilityfoundation/volatility3.git"
+GIT_REPOS[volatility]="https://github.com/volatilityfoundation/volatility.git"
+GIT_REPOS[yara]="https://github.com/VirusTotal/yara.git"
+GIT_REPOS[exiftool]="https://github.com/exiftool/exiftool.git"
+GIT_REPOS[foremost]="https://github.com/korczis/foremost.git"
+GIT_REPOS[sleuthkit]="https://github.com/sleuthkit/sleuthkit.git"
+GIT_REPOS[binwalk]="https://github.com/ReFirmLabs/binwalk.git"
+GIT_REPOS[bulk-extractor]="https://github.com/simsong/bulk_extractor.git"
+GIT_REPOS[scalpel]="https://github.com/sleuthkit/scalpel.git"
+
+# 14-Threat-Intelligence
+GIT_REPOS[sigma]="https://github.com/SigmaHQ/sigma.git"
+GIT_REPOS[misp]="https://github.com/MISP/MISP.git"
+GIT_REPOS[yara]="https://github.com/VirusTotal/yara.git"
+GIT_REPOS[thehive]="https://github.com/TheHive-Project/TheHive.git"
+GIT_REPOS[cortex]="https://github.com/TheHive-Project/Cortex.git"
+
+# 15-Additional-Attack-Tools
+GIT_REPOS[mitmproxy]="https://github.com/mitmproxy/mitmproxy.git"
+GIT_REPOS[ettercap]="https://github.com/Ettercap/ettercap.git"
+GIT_REPOS[macchanger]="https://github.com/alobbs/macchanger.git"
+GIT_REPOS[dnsspoof]="https://github.com/DanMcInerney/dnsspoof.git"
+GIT_REPOS[responder]="https://github.com/lgandx/Responder.git"
+GIT_REPOS[impacket]="https://github.com/SecureAuthCorp/impacket.git"
+
+# 16-Utilities
+GIT_REPOS[git]="https://github.com/git/git.git"
+GIT_REPOS[curl]="https://github.com/curl/curl.git"
+GIT_REPOS[wget]="https://github.com/mirror/wget.git"
+GIT_REPOS[nano]="https://github.com/madnight/nano.git"
+GIT_REPOS[tmux]="https://github.com/tmux/tmux.git"
+GIT_REPOS[openssh]="https://github.com/openssh/openssh-portable.git"
+
+# ====================== CATEGORY HELPERS ======================
+CAT_IG="01-Information-Gathering"
+CAT_OSINT="02-OSINT"
+CAT_SUB="03-Subdomain-Enumeration"
+CAT_DNS="04-DNS-Tools"
+CAT_WEB="05-Web-Security"
+CAT_NET="06-Network-Tools"
+CAT_WIRE="07-Wireless-Security"
+CAT_PASS="08-Password-Attack"
+CAT_EXPLOIT="09-Exploitation"
+CAT_POST="10-Post-Exploitation"
+CAT_REV="11-Reverse-Engineering"
+CAT_MAL="12-Malware-Analysis"
+CAT_FOR="13-Digital-Forensics"
+CAT_THREAT="14-Threat-Intelligence"
+CAT_ATK="15-Additional-Attack-Tools"
+CAT_UTIL="16-Utilities"
+
+# ====================== GENERIC SUBMENU ======================
+run_submenu() {
+    local title="$1"
+    local category="$2"
+    shift 2
+    local tools=("$@")
+    
     while true; do
-        section "INFORMATION GATHERING TOOLS"
+        section "${title}"
         echo -e "  ${B}${G}0${R}  Back to Main Menu"
-        echo -e "  ${B}${Y}A${R}  Install ALL Information Gathering Tools"
+        echo -e "  ${B}${Y}A${R}  Install ALL tools in this category"
         echo ""
         local i=1
         for t in "${tools[@]}"; do
             local status=" "
             command -v "$t" >/dev/null 2>&1 && status="${G}[✓]${R}" || status="${D}[ ]${R}"
-            printf "  %2d) %-25s %s\n" "$i" "$t" "$status"
+            printf "  %2d) %-30s %s\n" "$i" "$t" "$status"
             i=$((i+1))
         done
         echo ""
-        read -r -p "$(echo -e "${B}${C}[ZorkSec/InfoGathering]${R} Select: ")" ch
+        read -r -p "$(echo -e "${B}${C}[ZorkSec/${category}]${R} Select: ")" ch
         case "$ch" in
             0) break ;;
-            a|A) for t in "${tools[@]}"; do install_tool "$t" "information-gathering"; done ;;
-            *) 
+            a|A)
+                for t in "${tools[@]}"; do
+                    local url="${GIT_REPOS[$t]}"
+                    [ -n "$url" ] && install_git_tool "$url" "$t" "$category" || echo -e "  ${Y}[!] No repo for ${t}${R}"
+                done
+                ;;
+            *)
                 if [[ "$ch" =~ ^[0-9]+$ ]] && [ "$ch" -ge 1 ] && [ "$ch" -le "${#tools[@]}" ]; then
-                    install_tool "${tools[$((ch-1))]}" "information-gathering"
+                    local idx=$((ch-1))
+                    local tn="${tools[$idx]}"
+                    local ur="${GIT_REPOS[$tn]}"
+                    [ -n "$ur" ] && install_git_tool "$ur" "$tn" "$category" || echo -e "  ${Y}[!] No repo for ${tn}${R}"
                 fi
                 ;;
         esac
-        echo ""; read -r -p "Press Enter to continue..." 
+        echo ""; read -r -p "Press Enter to continue..."
     done
+}
+
+# ====================== SUBMENU FUNCTIONS ======================
+submenu_info_gathering() {
+    local tools=(nmap rustscan masscan naabu amass assetfinder subfinder findomain bbot theharvester dnsx dnsrecon dnsenum massdns fierce httpx httprobe katana gau waybackurls hakrawler)
+    run_submenu "INFORMATION GATHERING / RECONNAISSANCE" "${CAT_IG}" "${tools[@]}"
 }
 
 submenu_osint() {
     local tools=(sherlock maigret phoneinfoga holehe social-analyzer ghunt)
-    while true; do
-        section "OSINT TOOLS"
-        echo -e "  ${B}${G}0${R}  Back to Main Menu"
-        echo -e "  ${B}${Y}A${R}  Install ALL OSINT Tools"
-        echo ""
-        local i=1
-        for t in "${tools[@]}"; do
-            local status=" "
-            command -v "$t" >/dev/null 2>&1 && status="${G}[✓]${R}" || status="${D}[ ]${R}"
-            printf "  %2d) %-25s %s\n" "$i" "$t" "$status"
-            i=$((i+1))
-        done
-        echo ""
-        read -r -p "$(echo -e "${B}${C}[ZorkSec/OSINT]${R} Select: ")" ch
-        case "$ch" in
-            0) break ;;
-            a|A) for t in "${tools[@]}"; do install_tool "$t" "osint"; done ;;
-            *) 
-                if [[ "$ch" =~ ^[0-9]+$ ]] && [ "$ch" -ge 1 ] && [ "$ch" -le "${#tools[@]}" ]; then
-                    install_tool "${tools[$((ch-1))]}" "osint"
-                fi
-                ;;
-        esac
-        echo ""; read -r -p "Press Enter to continue..." 
-    done
+    run_submenu "OSINT (Open Source Intelligence)" "${CAT_OSINT}" "${tools[@]}"
 }
 
 submenu_subdomain() {
-    local tools=(subfinder assetfinder findomain amass dnsx httpx httprobe)
-    while true; do
-        section "SUBDOMAIN ENUMERATION TOOLS"
-        echo -e "  ${B}${G}0${R}  Back to Main Menu"
-        echo -e "  ${B}${Y}A${R}  Install ALL Subdomain Enumeration Tools"
-        echo ""
-        local i=1
-        for t in "${tools[@]}"; do
-            local status=" "
-            command -v "$t" >/dev/null 2>&1 && status="${G}[✓]${R}" || status="${D}[ ]${R}"
-            printf "  %2d) %-25s %s\n" "$i" "$t" "$status"
-            i=$((i+1))
-        done
-        echo ""
-        read -r -p "$(echo -e "${B}${C}[ZorkSec/Subdomain]${R} Select: ")" ch
-        case "$ch" in
-            0) break ;;
-            a|A) for t in "${tools[@]}"; do install_tool "$t" "subdomain"; done ;;
-            *) [[ "$ch" =~ ^[0-9]+$ ]] && [ "$ch" -le "${#tools[@]}" ] && install_tool "${tools[$((ch-1))]}" "subdomain" ;;
-        esac
-        echo ""; read -r -p "Press Enter to continue..." 
-    done
+    local tools=(subfinder assetfinder findomain amass dnsx httpx httprobe sublist3r subbrute)
+    run_submenu "SUBDOMAIN ENUMERATION" "${CAT_SUB}" "${tools[@]}"
 }
 
 submenu_dns() {
     local tools=(dnsx dnsrecon dnsenum massdns fierce)
-    while true; do
-        section "DNS TOOLS"
-        echo -e "  ${B}${G}0${R}  Back to Main Menu"
-        echo -e "  ${B}${Y}A${R}  Install ALL DNS Tools"
-        echo ""
-        local i=1
-        for t in "${tools[@]}"; do
-            local status=" "
-            command -v "$t" >/dev/null 2>&1 && status="${G}[✓]${R}" || status="${D}[ ]${R}"
-            printf "  %2d) %-25s %s\n" "$i" "$t" "$status"
-            i=$((i+1))
-        done
-        echo ""
-        read -r -p "$(echo -e "${B}${C}[ZorkSec/DNS]${R} Select: ")" ch
-        case "$ch" in
-            0) break ;;
-            a|A) for t in "${tools[@]}"; do install_tool "$t" "dns"; done ;;
-            *) [[ "$ch" =~ ^[0-9]+$ ]] && [ "$ch" -le "${#tools[@]}" ] && install_tool "${tools[$((ch-1))]}" "dns" ;;
-        esac
-        echo ""; read -r -p "Press Enter to continue..." 
-    done
+    run_submenu "DNS TOOLS" "${CAT_DNS}" "${tools[@]}"
 }
 
 submenu_web() {
     local tools=(ffuf gobuster dirsearch feroxbuster nikto nuclei wpscan dalfox xsstrike paramspider arjun)
-    while true; do
-        section "WEB APPLICATION SECURITY TOOLS"
-        echo -e "  ${B}${G}0${R}  Back to Main Menu"
-        echo -e "  ${B}${Y}A${R}  Install ALL Web Security Tools"
-        echo ""
-        local i=1
-        for t in "${tools[@]}"; do
-            local status=" "
-            command -v "$t" >/dev/null 2>&1 && status="${G}[✓]${R}" || status="${D}[ ]${R}"
-            printf "  %2d) %-25s %s\n" "$i" "$t" "$status"
-            i=$((i+1))
-        done
-        echo ""
-        read -r -p "$(echo -e "${B}${C}[ZorkSec/WebSec]${R} Select: ")" ch
-        case "$ch" in
-            0) break ;;
-            a|A) for t in "${tools[@]}"; do install_tool "$t" "web-security"; done ;;
-            *) [[ "$ch" =~ ^[0-9]+$ ]] && [ "$ch" -le "${#tools[@]}" ] && install_tool "${tools[$((ch-1))]}" "web-security" ;;
-        esac
-        echo ""; read -r -p "Press Enter to continue..." 
-    done
+    run_submenu "WEB APPLICATION SECURITY" "${CAT_WEB}" "${tools[@]}"
 }
 
 submenu_network() {
-    local tools=(tcpdump tshark termshark netcat socat bettercap nmap masscan)
-    while true; do
-        section "NETWORK TOOLS"
-        echo -e "  ${B}${G}0${R}  Back to Main Menu"
-        echo -e "  ${B}${Y}A${R}  Install ALL Network Tools"
-        echo ""
-        local i=1
-        for t in "${tools[@]}"; do
-            local status=" "
-            command -v "$t" >/dev/null 2>&1 && status="${G}[✓]${R}" || status="${D}[ ]${R}"
-            printf "  %2d) %-25s %s\n" "$i" "$t" "$status"
-            i=$((i+1))
-        done
-        echo ""
-        read -r -p "$(echo -e "${B}${C}[ZorkSec/Network]${R} Select: ")" ch
-        case "$ch" in
-            0) break ;;
-            a|A) for t in "${tools[@]}"; do install_tool "$t" "network"; done ;;
-            *) [[ "$ch" =~ ^[0-9]+$ ]] && [ "$ch" -le "${#tools[@]}" ] && install_tool "${tools[$((ch-1))]}" "network" ;;
-        esac
-        echo ""; read -r -p "Press Enter to continue..." 
-    done
+    local tools=(tcpdump termshark bettercap nmap masscan zmap)
+    run_submenu "NETWORK TOOLS" "${CAT_NET}" "${tools[@]}"
 }
 
 submenu_wireless() {
-    local tools=(aircrack-ng hcxdumptool reaver mdk4 kismet wifite)
-    while true; do
-        section "WIRELESS SECURITY TOOLS"
-        echo -e "  ${B}${G}0${R}  Back to Main Menu"
-        echo -e "  ${B}${Y}A${R}  Install ALL Wireless Tools"
-        echo ""
-        local i=1
-        for t in "${tools[@]}"; do
-            local status=" "
-            command -v "$t" >/dev/null 2>&1 && status="${G}[✓]${R}" || status="${D}[ ]${R}"
-            printf "  %2d) %-25s %s\n" "$i" "$t" "$status"
-            i=$((i+1))
-        done
-        echo ""
-        read -r -p "$(echo -e "${B}${C}[ZorkSec/Wireless]${R} Select: ")" ch
-        case "$ch" in
-            0) break ;;
-            a|A) for t in "${tools[@]}"; do install_tool "$t" "wireless"; done ;;
-            *) [[ "$ch" =~ ^[0-9]+$ ]] && [ "$ch" -le "${#tools[@]}" ] && install_tool "${tools[$((ch-1))]}" "wireless" ;;
-        esac
-        echo ""; read -r -p "Press Enter to continue..." 
-    done
+    local tools=(aircrack-ng hcxdumptool reaver mdk4 kismet wifite2 hackrf)
+    run_submenu "WIRELESS SECURITY (WiFi / RF)" "${CAT_WIRE}" "${tools[@]}"
 }
 
 submenu_password() {
-    local tools=(john hashcat hydra crunch cewl hash-identifier medusa ncrack patator)
-    while true; do
-        section "PASSWORD AUDITING TOOLS"
-        echo -e "  ${B}${G}0${R}  Back to Main Menu"
-        echo -e "  ${B}${Y}A${R}  Install ALL Password Auditing Tools"
-        echo ""
-        local i=1
-        for t in "${tools[@]}"; do
-            local status=" "
-            command -v "$t" >/dev/null 2>&1 && status="${G}[✓]${R}" || status="${D}[ ]${R}"
-            printf "  %2d) %-25s %s\n" "$i" "$t" "$status"
-            i=$((i+1))
-        done
-        echo ""
-        read -r -p "$(echo -e "${B}${C}[ZorkSec/Password]${R} Select: ")" ch
-        case "$ch" in
-            0) break ;;
-            a|A) for t in "${tools[@]}"; do install_tool "$t" "password-auditing"; done ;;
-            *) [[ "$ch" =~ ^[0-9]+$ ]] && [ "$ch" -le "${#tools[@]}" ] && install_tool "${tools[$((ch-1))]}" "password-auditing" ;;
-        esac
-        echo ""; read -r -p "Press Enter to continue..." 
-    done
+    local tools=(john hashcat hydra crunch cewl hash-identifier medusa ncrack patator hashcat-utils secLists)
+    run_submenu "PASSWORD AUDITING / CRACKING" "${CAT_PASS}" "${tools[@]}"
 }
 
 submenu_exploit() {
-    local tools=(metasploit sqlmap commix searchsploit beef yersinia setoolkit)
-    while true; do
-        section "EXPLOITATION TOOLS"
-        echo -e "  ${B}${G}0${R}  Back to Main Menu"
-        echo -e "  ${B}${Y}A${R}  Install ALL Exploitation Tools"
-        echo ""
-        local i=1
-        for t in "${tools[@]}"; do
-            local status=" "
-            command -v "$t" >/dev/null 2>&1 && status="${G}[✓]${R}" || status="${D}[ ]${R}"
-            printf "  %2d) %-25s %s\n" "$i" "$t" "$status"
-            i=$((i+1))
-        done
-        echo ""
-        read -r -p "$(echo -e "${B}${C}[ZorkSec/Exploitation]${R} Select: ")" ch
-        case "$ch" in
-            0) break ;;
-            a|A) for t in "${tools[@]}"; do install_tool "$t" "exploitation"; done ;;
-            *) [[ "$ch" =~ ^[0-9]+$ ]] && [ "$ch" -le "${#tools[@]}" ] && install_tool "${tools[$((ch-1))]}" "exploitation" ;;
-        esac
-        echo ""; read -r -p "Press Enter to continue..." 
-    done
+    local tools=(metasploit-framework sqlmap commix exploitdb beef yersinia setoolkit shellphish hiddeneye evilginx2)
+    run_submenu "EXPLOITATION & PHISHING" "${CAT_EXPLOIT}" "${tools[@]}"
 }
 
 submenu_postexploit() {
-    local tools=(empire pwncat chisel ligolo-ng)
-    while true; do
-        section "POST EXPLOITATION TOOLS"
-        echo -e "  ${B}${G}0${R}  Back to Main Menu"
-        echo -e "  ${B}${Y}A${R}  Install ALL Post Exploitation Tools"
-        echo ""
-        local i=1
-        for t in "${tools[@]}"; do
-            local status=" "
-            command -v "$t" >/dev/null 2>&1 && status="${G}[✓]${R}" || status="${D}[ ]${R}"
-            printf "  %2d) %-25s %s\n" "$i" "$t" "$status"
-            i=$((i+1))
-        done
-        echo ""
-        read -r -p "$(echo -e "${B}${C}[ZorkSec/PostExploit]${R} Select: ")" ch
-        case "$ch" in
-            0) break ;;
-            a|A) for t in "${tools[@]}"; do install_tool "$t" "post-exploitation"; done ;;
-            *) [[ "$ch" =~ ^[0-9]+$ ]] && [ "$ch" -le "${#tools[@]}" ] && install_tool "${tools[$((ch-1))]}" "post-exploitation" ;;
-        esac
-        echo ""; read -r -p "Press Enter to continue..." 
-    done
+    local tools=(empire pwncat chisel ligolo-ng phpsploit)
+    run_submenu "POST EXPLOITATION" "${CAT_POST}" "${tools[@]}"
 }
 
 submenu_reverse() {
-    local tools=(radare2 strings binwalk apktool jadx)
-    while true; do
-        section "REVERSE ENGINEERING TOOLS"
-        echo -e "  ${B}${G}0${R}  Back to Main Menu"
-        echo -e "  ${B}${Y}A${R}  Install ALL Reverse Engineering Tools"
-        echo ""
-        local i=1
-        for t in "${tools[@]}"; do
-            local status=" "
-            command -v "$t" >/dev/null 2>&1 && status="${G}[✓]${R}" || status="${D}[ ]${R}"
-            printf "  %2d) %-25s %s\n" "$i" "$t" "$status"
-            i=$((i+1))
-        done
-        echo ""
-        read -r -p "$(echo -e "${B}${C}[ZorkSec/ReverseEng]${R} Select: ")" ch
-        case "$ch" in
-            0) break ;;
-            a|A) for t in "${tools[@]}"; do install_tool "$t" "reverse-engineering"; done ;;
-            *) [[ "$ch" =~ ^[0-9]+$ ]] && [ "$ch" -le "${#tools[@]}" ] && install_tool "${tools[$((ch-1))]}" "reverse-engineering" ;;
-        esac
-        echo ""; read -r -p "Press Enter to continue..." 
-    done
+    local tools=(radare2 binwalk apktool jadx gdb rizin frida)
+    run_submenu "REVERSE ENGINEERING" "${CAT_REV}" "${tools[@]}"
 }
 
 submenu_malware() {
-    local tools=(clamav radare2 strings yara)
-    while true; do
-        section "MALWARE ANALYSIS TOOLS"
-        echo -e "  ${B}${G}0${R}  Back to Main Menu"
-        echo -e "  ${B}${Y}A${R}  Install ALL Malware Analysis Tools"
-        echo ""
-        local i=1
-        for t in "${tools[@]}"; do
-            local status=" "
-            command -v "$t" >/dev/null 2>&1 && status="${G}[✓]${R}" || status="${D}[ ]${R}"
-            printf "  %2d) %-25s %s\n" "$i" "$t" "$status"
-            i=$((i+1))
-        done
-        echo ""
-        read -r -p "$(echo -e "${B}${C}[ZorkSec/Malware]${R} Select: ")" ch
-        case "$ch" in
-            0) break ;;
-            a|A) for t in "${tools[@]}"; do install_tool "$t" "malware-analysis"; done ;;
-            *) [[ "$ch" =~ ^[0-9]+$ ]] && [ "$ch" -le "${#tools[@]}" ] && install_tool "${tools[$((ch-1))]}" "malware-analysis" ;;
-        esac
-        echo ""; read -r -p "Press Enter to continue..." 
-    done
+    local tools=(clamav yara strings capa flare-floss)
+    run_submenu "MALWARE ANALYSIS" "${CAT_MAL}" "${tools[@]}"
 }
 
 submenu_forensics() {
-    local tools=(volatility yara exiftool foremost sleuthkit binwalk)
-    while true; do
-        section "DIGITAL FORENSICS TOOLS"
-        echo -e "  ${B}${G}0${R}  Back to Main Menu"
-        echo -e "  ${B}${Y}A${R}  Install ALL Forensics Tools"
-        echo ""
-        local i=1
-        for t in "${tools[@]}"; do
-            local status=" "
-            command -v "$t" >/dev/null 2>&1 && status="${G}[✓]${R}" || status="${D}[ ]${R}"
-            printf "  %2d) %-25s %s\n" "$i" "$t" "$status"
-            i=$((i+1))
-        done
-        echo ""
-        read -r -p "$(echo -e "${B}${C}[ZorkSec/Forensics]${R} Select: ")" ch
-        case "$ch" in
-            0) break ;;
-            a|A) for t in "${tools[@]}"; do install_tool "$t" "forensics"; done ;;
-            *) [[ "$ch" =~ ^[0-9]+$ ]] && [ "$ch" -le "${#tools[@]}" ] && install_tool "${tools[$((ch-1))]}" "forensics" ;;
-        esac
-        echo ""; read -r -p "Press Enter to continue..." 
-    done
+    local tools=(volatility3 volatility yara exiftool foremost sleuthkit binwalk bulk-extractor scalpel)
+    run_submenu "DIGITAL FORENSICS" "${CAT_FOR}" "${tools[@]}"
 }
 
 submenu_threat() {
-    local tools=(yara sigma misp-client)
-    while true; do
-        section "THREAT INTELLIGENCE TOOLS"
-        echo -e "  ${B}${G}0${R}  Back to Main Menu"
-        echo -e "  ${B}${Y}A${R}  Install ALL Threat Intel Tools"
-        echo ""
-        local i=1
-        for t in "${tools[@]}"; do
-            local status=" "
-            command -v "$t" >/dev/null 2>&1 && status="${G}[✓]${R}" || status="${D}[ ]${R}"
-            printf "  %2d) %-25s %s\n" "$i" "$t" "$status"
-            i=$((i+1))
-        done
-        echo ""
-        read -r -p "$(echo -e "${B}${C}[ZorkSec/ThreatIntel]${R} Select: ")" ch
-        case "$ch" in
-            0) break ;;
-            a|A) for t in "${tools[@]}"; do install_tool "$t" "threat-intel"; done ;;
-            *) [[ "$ch" =~ ^[0-9]+$ ]] && [ "$ch" -le "${#tools[@]}" ] && install_tool "${tools[$((ch-1))]}" "threat-intel" ;;
-        esac
-        echo ""; read -r -p "Press Enter to continue..." 
-    done
+    local tools=(sigma misp yara thehive cortex)
+    run_submenu "THREAT INTELLIGENCE" "${CAT_THREAT}" "${tools[@]}"
 }
 
-submenu_utilities() {
-    local tools=(git curl wget nano vim tmux tree zip unzip python go nodejs ruby)
-    while true; do
-        section "UTILITIES"
-        echo -e "  ${B}${G}0${R}  Back to Main Menu"
-        echo -e "  ${B}${Y}A${R}  Install ALL Utilities"
-        echo ""
-        local i=1
-        for t in "${tools[@]}"; do
-            local status=" "
-            command -v "$t" >/dev/null 2>&1 && status="${G}[✓]${R}" || status="${D}[ ]${R}"
-            printf "  %2d) %-25s %s\n" "$i" "$t" "$status"
-            i=$((i+1))
-        done
-        echo ""
-        read -r -p "$(echo -e "${B}${C}[ZorkSec/Utilities]${R} Select: ")" ch
-        case "$ch" in
-            0) break ;;
-            a|A) for t in "${tools[@]}"; do install_tool "$t" "utilities"; done ;;
-            *) [[ "$ch" =~ ^[0-9]+$ ]] && [ "$ch" -le "${#tools[@]}" ] && install_tool "${tools[$((ch-1))]}" "utilities" ;;
-        esac
-        echo ""; read -r -p "Press Enter to continue..." 
-    done
+submenu_attacks() {
+    local tools=(mitmproxy ettercap macchanger dnsspoof responder impacket setoolkit beef)
+    run_submenu "ADDITIONAL ATTACK TOOLS (MITM, Phishing, Spoofing)" "${CAT_ATK}" "${tools[@]}"
 }
 
-submenu_additional_attacks() {
-    local tools=(mitmproxy ettercap dnsspoof macchanger hydra medusa ncrack patator setoolkit beef yersinia)
+# ====================== PACKAGES SECTION (NEW) ======================
+# This installs Termux base packages needed for building/running tools
+pkg_inst() {
+    local pkg=$1
+    pkg list-installed 2>/dev/null | grep -q "^${pkg}$" && return 0
+    echo -e "${C}[*] Installing Termux package: ${pkg}${R}"
+    pkg install -y "${pkg}" 2>/dev/null || { log_error "pkg install failed: ${pkg}"; return 1; }
+    log_success "Package installed: ${pkg}"; return 0
+}
+
+submenu_packages() {
+    local packages=(
+        # Build essentials
+        "git" "curl" "wget" "make" "cmake" "clang" "gcc" "binutils" "pkg-config" "build-essential"
+        # Languages
+        "python" "python3" "python-pip" "golang" "rust" "nodejs" "ruby" "perl"
+        # Libraries
+        "libpcap" "libusb" "openssl" "libcurl" "libxml2" "libxslt"
+        # Termux repos
+        "root-repo" "x11-repo" "tur-repo"
+        # Tools that work better as pkg
+        "nmap" "tcpdump" "tshark" "john" "hydra" "sqlmap" "exploitdb"
+        # Editors / utilities
+        "nano" "vim" "tmux" "tree" "zip" "unzip" "openssh" "htop"
+    )
+    
     while true; do
-        section "ADDITIONAL ATTACK TOOLS (Phishing, MITM, Brute Force)"
-        echo -e "  ${B}${G}0${R}  Back to Main Menu"
-        echo -e "  ${B}${Y}A${R}  Install ALL Additional Attack Tools"
+        section "PACKAGES — Termux Base Installation"
+        echo -e "  ${D}Install core Termux packages: compilers, languages, libraries${R}"
+        echo -e "  ${D}This is for system deps. Tools themselves are cloned from GitHub.${R}"
         echo ""
-        echo -e "  ${D}Includes: Phishing (SET), MITM (ettercap, mitmproxy),${R}"
-        echo -e "  ${D}Brute Force (hydra, medusa, ncrack, patator), Spoofing${R}"
+        echo -e "  ${B}${G}0${R}  Back to Main Menu"
+        echo -e "  ${B}${Y}A${R}  Install ALL packages"
         echo ""
         local i=1
-        for t in "${tools[@]}"; do
+        for p in "${packages[@]}"; do
             local status=" "
-            command -v "$t" >/dev/null 2>&1 && status="${G}[✓]${R}" || status="${D}[ ]${R}"
-            printf "  %2d) %-25s %s\n" "$i" "$t" "$status"
+            pkg list-installed 2>/dev/null | grep -q "^${p}$" && status="${G}[✓]${R}" || status="${D}[ ]${R}"
+            printf "  %2d) %-25s %s\n" "$i" "$p" "$status"
             i=$((i+1))
         done
         echo ""
-        read -r -p "$(echo -e "${B}${C}[ZorkSec/AttackTools]${R} Select: ")" ch
+        read -r -p "$(echo -e "${B}${C}[ZorkSec/Packages]${R} Select: ")" ch
         case "$ch" in
             0) break ;;
-            a|A) for t in "${tools[@]}"; do install_tool "$t" "attack-tools"; done ;;
-            *) [[ "$ch" =~ ^[0-9]+$ ]] && [ "$ch" -le "${#tools[@]}" ] && install_tool "${tools[$((ch-1))]}" "attack-tools" ;;
+            a|A)
+                echo -e "${C}[*] Updating package lists first...${R}"
+                pkg update -y 2>/dev/null || true
+                pkg upgrade -y 2>/dev/null || true
+                for p in "${packages[@]}"; do
+                    pkg_inst "$p" || true
+                done
+                ;;
+            *)
+                if [[ "$ch" =~ ^[0-9]+$ ]] && [ "$ch" -ge 1 ] && [ "$ch" -le "${#packages[@]}" ]; then
+                    pkg_inst "${packages[$((ch-1))]}" || true
+                fi
+                ;;
         esac
-        echo ""; read -r -p "Press Enter to continue..." 
+        echo ""; read -r -p "Press Enter to continue..."
     done
 }
 
 # ====================== INSTALL EVERYTHING ======================
 install_everything() {
-    section "FULL INSTALLATION — ALL TOOLS"
-    echo -e "${Y}[!] This will install ALL ~200+ cybersecurity tools${R}"
-    echo -e "${Y}[!] Requires 2-5GB storage and 30-90 minutes${R}"
-    confirm "Proceed with full installation?" || return
+    section "FULL INSTALLATION — ALL ~200+ TOOLS"
+    echo -e "${Y}[!] This will clone ALL repositories from GitHub (~2-5GB)${R}"
+    echo -e "${Y}[!] Estimated time: 30-90 minutes depending on network${R}"
+    confirm "Proceed?" || return
     
-    check_network || { echo -e "${Rr}[!] Network required.${R}"; return; }
-    check_storage 2000 || { confirm "Low storage. Continue?" || return; }
-    
-    # Install prerequisites first
-    sub "Installing core prerequisites"
-    pkg update -y 2>/dev/null || true; pkg upgrade -y 2>/dev/null || true
-    for p in git curl wget python python3 golang rust nodejs ruby make clang cmake; do
-        command -v "$p" >/dev/null 2>&1 || pkg_inst "$p" || true
+    echo -e "${C}[*] Installing base packages first...${R}"
+    pkg update -y 2>/dev/null || true
+    pkg upgrade -y 2>/dev/null || true
+    for p in git curl wget python python3 golang rust nodejs ruby make clang cmake pkg-config; do
+        pkg_inst "$p" 2>/dev/null || true
     done
     
-    # Install all categories
-    for t in nmap rustscan masscan naabu amass assetfinder subfinder findomain bbot theharvester dnsx dnsrecon dnsenum massdns fierce httpx httprobe katana gau waybackurls hakrawler; do install_tool "$t" "information-gathering"; done
-    for t in sherlock maigret phoneinfoga holehe social-analyzer ghunt; do install_tool "$t" "osint"; done
-    for t in ffuf gobuster dirsearch feroxbuster nikto nuclei wpscan dalfox xsstrike paramspider arjun; do install_tool "$t" "web-security"; done
-    for t in tcpdump tshark termshark netcat socat bettercap; do install_tool "$t" "network"; done
-    for t in aircrack-ng hcxdumptool reaver mdk4 kismet wifite; do install_tool "$t" "wireless"; done
-    for t in john hashcat hydra crunch cewl hash-identifier medusa ncrack patator; do install_tool "$t" "password-auditing"; done
-    for t in metasploit sqlmap commix searchsploit beef yersinia setoolkit; do install_tool "$t" "exploitation"; done
-    for t in empire pwncat chisel ligolo-ng; do install_tool "$t" "post-exploitation"; done
-    for t in radare2 strings binwalk apktool jadx; do install_tool "$t" "reverse-engineering"; done
-    for t in clamav volatility yara exiftool foremost sleuthkit; do install_tool "$t" "forensics"; done
-    for t in sigma misp-client; do install_tool "$t" "threat-intel"; done
-    for t in mitmproxy ettercap dnsspoof macchanger; do install_tool "$t" "attack-tools"; done
+    # Now install all tool categories
+    local all_categories=(
+        "submenu_info_gathering:${CAT_IG}:nmap rustscan masscan naabu amass assetfinder subfinder findomain bbot theharvester dnsx dnsrecon dnsenum massdns fierce httpx httprobe katana gau waybackurls hakrawler"
+        "submenu_osint:${CAT_OSINT}:sherlock maigret phoneinfoga holehe social-analyzer ghunt"
+        "submenu_web:${CAT_WEB}:ffuf gobuster dirsearch feroxbuster nikto nuclei wpscan dalfox xsstrike paramspider arjun"
+        "submenu_password:${CAT_PASS}:john hashcat hydra crunch cewl hash-identifier medusa ncrack patator hashcat-utils secLists"
+        "submenu_exploit:${CAT_EXPLOIT}:metasploit-framework sqlmap commix exploitdb beef yersinia setoolkit"
+        "submenu_forensics:${CAT_FOR}:volatility3 volatity yara exiftool foremost sleuthkit binwalk"
+        "submenu_wireless:${CAT_WIRE}:aircrack-ng hcxdumptool reaver mdk4 kismet wifite2"
+        "submenu_network:${CAT_NET}:tcpdump termshark bettercap nmap masscan"
+        "submenu_reverse:${CAT_REV}:radare2 binwalk apktool jadx rizin"
+        "submenu_attacks:${CAT_ATK}:mitmproxy ettercap macchanger responder impacket"
+    )
+    
+    for entry in "${all_categories[@]}"; do
+        local cat_name="${entry%%:*}"
+        local rest="${entry#*:}"
+        local cat_dir="${rest%%:*}"
+        local tools_str="${rest#*:}"
+        
+        section "Installing: ${cat_dir}"
+        for tn in ${tools_str}; do
+            local url="${GIT_REPOS[$tn]}"
+            [ -n "$url" ] && install_git_tool "$url" "$tn" "$cat_dir" || true
+        done
+    done
     
     echo -e "\n${B}${G}═══════════════════════════════════════════════════════════════${R}"
     echo -e "${B}${G}           FULL INSTALLATION COMPLETE!                          ${R}"
@@ -834,264 +611,113 @@ install_everything() {
     show_summary
 }
 
-# ====================== UPDATE / REPAIR / HEALTH ======================
-
+# ====================== UPDATE ALL ======================
 update_all() {
-    section "UPDATE ALL INSTALLED TOOLS"
-
-    pkg update -y 2>/dev/null || true
-    pkg upgrade -y 2>/dev/null || true
-
-    if command -v go >/dev/null 2>&1; then
-        echo -e "${C}[*] Updating Go tools...${R}"
-
-        for p in \
-            "github.com/projectdiscovery/naabu/v2/cmd/naabu@latest" \
-            "github.com/projectdiscovery/subfinder/v2/cmd/subfinder@latest" \
-            "github.com/projectdiscovery/httpx/cmd/httpx@latest" \
-            "github.com/projectdiscovery/dnsx/cmd/dnsx@latest" \
-            "github.com/projectdiscovery/nuclei/v3/cmd/nuclei@latest" \
-            "github.com/projectdiscovery/katana/cmd/katana@latest" \
-            "github.com/tomnomnom/assetfinder@latest" \
-            "github.com/tomnomnom/httprobe@latest" \
-            "github.com/tomnomnom/waybackurls@latest" \
-            "github.com/ffuf/ffuf/v2@latest" \
-            "github.com/OJ/gobuster/v3@latest" \
-            "github.com/hahwul/dalfox/v2@latest" \
-            "github.com/lc/gau/v2/cmd/gau@latest" \
-            "github.com/hakluke/hakrawler@latest" \
-            "github.com/bettercap/bettercap@latest"
-        do
-            echo -e "${C}[*] ${p}${R}"
-            GO111MODULE=on go install -v "$p" 2>/dev/null || true
-        done
-    fi
-
-    if command -v cargo >/dev/null 2>&1; then
-        echo -e "${C}[*] Updating Rust tools...${R}"
-
-        for p in rustscan feroxbuster findomain
-        do
-            cargo install "$p" 2>/dev/null || true
-        done
-    fi
-
-    command -v nuclei >/dev/null 2>&1 && nuclei -update-templates 2>/dev/null || true
-
-    find "${TOOLS_DIR}" -name ".git" -type d 2>/dev/null | while read -r gd
-    do
-        rd="$(dirname "$gd")"
-
-        echo -e "${C}[*] Git: $(basename "$rd")${R}"
-
-        (
-            cd "$rd" || exit
-            git pull --ff-only
-        ) 2>/dev/null || true
+    section "UPDATE ALL CLONED REPOSITORIES"
+    find "${TOOLS_DIR}" -name ".git" -type d 2>/dev/null | while read -r gd; do
+        rd="$(dirname "${gd}")"
+        echo -e "${C}[*] $(echo "${rd}" | sed "s|${TOOLS_DIR}/||")${R}"
+        (cd "${rd}" && git pull --ff-only 2>/dev/null) || true
     done
-
-    echo -e "${G}[✓] Update complete${R}"
+    echo -e "${G}[✓] All repositories updated${R}"
 }
 
-repair_broken() {
-    section "REPAIR BROKEN PACKAGES"
-
-    pkg install -y termux-tools 2>/dev/null || true
-    apt --fix-broken install -y 2>/dev/null || true
-    python3 -m pip install --upgrade pip 2>/dev/null || true
-
-    if [ -f "${PKG_DB}" ]; then
-        while IFS='|' read -r ts category name status
-        do
-            [ "$status" = "installed" ] || continue
-
-            if ! command -v "$name" >/dev/null 2>&1; then
-                echo -e "${Y}[!] Re-installing broken: ${name}${R}"
-                install_tool "$name" "$category" || true
-            fi
-
-        done < "${PKG_DB}"
-    fi
-
-    echo -e "${G}[✓] Repair process complete${R}"
+# ====================== SHOW INSTALLED ======================
+show_installed() {
+    section "INSTALLED TOOLS"
+    if [ ! -f "${PKG_DB}" ]; then echo -e "${Y}[!] No records${R}"; return; fi
+    local cat=""
+    while IFS='|' read -r ts c n s; do
+        [ "$c" != "$cat" ] && echo "" && echo -e "${B}${BLE}► ${c}${R}" && cat="$c"
+        local scolor="${G}"; [ "$s" = "failed" ] && scolor="${Rr}"; [ "$s" = "skipped" ] && scolor="${Y}"
+        printf "  %-35s ${scolor}%-10s${R}\n" "$n" "$s"
+    done < "${PKG_DB}"
+    echo ""; echo -e "${D}Total: $(wc -l < "${PKG_DB}") records${R}"
+    
+    echo ""; echo -e "${C}Your tools are stored in:${R}"
+    echo -e "  ${D}${TOOLS_DIR}/${R}"
+    echo -e "${C}To see the folder structure:${R}"
+    echo -e "  ${D}ls -la ${TOOLS_DIR}/${R}"
 }
 
+# ====================== HEALTH CHECK ======================
 health_check() {
-
     section "SYSTEM HEALTH CHECK"
-
     local issues=0
-
-    # 1. Storage
-    local avail
-    avail=$(df "$HOME" 2>/dev/null | awk 'NR==2{print $4}')
-    avail=${avail:-0}
-
-    local mb=$((avail / 1024))
-
-    echo -e "  ${B}[1] Storage:${R} ${mb}MB available"
-
-    if [ "$mb" -lt 500 ]; then
-        echo -e "    ${Rr}✗ LOW STORAGE${R}"
-        issues=$((issues + 1))
-    else
-        echo -e "    ${G}✓ OK${R}"
-    fi
-
-    # 2. Network
+    
+    # Storage
+    local mb=$(($(df "$HOME" 2>/dev/null | awk 'NR==2{print $4}')/1024))
+    echo -e "  ${B}[1] Storage:${R} ${mb}MB free"
+    [ "$mb" -lt 500 ] && { echo -e "    ${Rr}✗ LOW${R}"; issues=$((issues+1)); } || echo -e "    ${G}✓${R}"
+    
+    # Network
     echo -e "  ${B}[2] Network:${R}"
-
-    if check_network; then
+    if ping -c 1 -W 2 8.8.8.8 >/dev/null 2>&1 || ping -c 1 -W 2 1.1.1.1 >/dev/null 2>&1; then
         echo -e "    ${G}✓ Connected${R}"
     else
         echo -e "    ${Y}⚠ Offline${R}"
-        issues=$((issues + 1))
     fi
-
-    # 3. Core Packages
-    echo -e "  ${B}[3] Core Packages:${R}"
-
-    for p in git curl wget python3 nmap
-    do
-        if command -v "$p" >/dev/null 2>&1; then
-            echo -e "    ${G}✓ ${p}${R}"
-        else
-            echo -e "    ${Rr}✗ ${p} MISSING${R}"
-            issues=$((issues + 1))
-        fi
-    done
-
-    # 4. Language Runtimes
-    echo -e "  ${B}[4] Language Runtimes:${R}"
-
-    for r in go python3 node ruby cargo
-    do
-        if command -v "$r" >/dev/null 2>&1; then
-            echo -e "    ${G}✓ ${r}${R}"
-        else
-            echo -e "    ${Y}⚠ ${r} not installed${R}"
-        fi
-    done
-
-    # 5. Installed Tools Verification
-    echo -e "  ${B}[5] Installed Tools Verification:${R}"
-
-    local verified=0
-    local failed=0
-
-    if [ -f "${PKG_DB}" ]; then
-        while IFS='|' read -r ts category name status
-        do
-            [ "$status" = "installed" ] || continue
-
-            if command -v "$name" >/dev/null 2>&1; then
-                verified=$((verified + 1))
-            else
-                failed=$((failed + 1))
-                echo -e "    ${Y}⚠ ${name} (${category}) - binary not found${R}"
-            fi
-
-        done < "${PKG_DB}"
-    fi
-
-    echo -e "    ${G}✓ ${verified} verified${R}   ${Y}${failed} missing${R}"
-
-    # 6. Storage Usage
-    echo -e "  ${B}[6] Storage Usage:${R}"
-
-    [ -d "${TOOLS_DIR}" ] && du -sh "${TOOLS_DIR}" 2>/dev/null | awk '{print "    Tools : " $1}'
-    [ -d "${LOG_DIR}" ] && du -sh "${LOG_DIR}" 2>/dev/null | awk '{print "    Logs  : " $1}'
-
-    # 7. PATH Check
-    echo -e "  ${B}[7] PATH Sanity:${R}"
-
-    local path_ok=0
-
-    for d in \
-        "${HOME}/go/bin" \
-        "${HOME}/.cargo/bin" \
-        "${HOME}/.local/bin" \
-        "${PREFIX}/bin"
-    do
-        echo "$PATH" | grep -Fq "$d" && path_ok=$((path_ok + 1))
-    done
-
-    echo -e "    ${G}✓ PATH contains ${path_ok}/4 standard directories${R}"
-
-    echo
-
-    if [ "$issues" -eq 0 ]; then
-        echo -e "${G}✓ All health checks passed!${R}"
-    else
-        echo -e "${Y}⚠ ${issues} issue(s) found. Run 'Repair Broken Packages' from the menu.${R}"
-    fi
+    
+    # Git
+    echo -e "  ${B}[3] Git Available:${R}"
+    command -v git >/dev/null 2>&1 && echo -e "    ${G}✓ git found${R}" || { echo -e "    ${Rr}✗ git MISSING${R}"; issues=$((issues+1)); }
+    
+    # Count repos
+    local repo_count=$(find "${TOOLS_DIR}" -name ".git" -type d 2>/dev/null | wc -l)
+    echo -e "  ${B}[4] Cloned Repos:${R} ${repo_count}"
+    
+    # Check tool dir
+    echo -e "  ${B}[5] Tool Directory Structure:${R}"
+    ls -d "${TOOLS_DIR}"/*/ 2>/dev/null | sed "s|${TOOLS_DIR}/|  • |g" | sed 's|/$||' || echo -e "    ${Y}No tools installed yet${R}"
+    
+    echo ""
+    [ "$issues" -eq 0 ] && echo -e "${G}✓ Health OK${R}" || echo -e "${Y}⚠ ${issues} issue(s)${R}"
 }
-# ====================== REPOSITORY MANAGER ======================
+
+# ====================== REPO MANAGER ======================
 repo_manager() {
     while true; do
         section "REPOSITORY MANAGER"
-        echo -e "  ${B}${G}1${R}  List all cloned repositories"
-        echo -e "  ${B}${G}2${R}  Update all repositories"
-        echo -e "  ${B}${G}3${R}  Delete a repository"
-        echo -e "  ${B}${G}4${R}  Show repository sizes"
-        echo -e "  ${B}${G}0${R}  Back to Main Menu"
+        echo -e "  ${B}${G}1${R}  List all cloned repos"
+        echo -e "  ${B}${G}2${R}  Update all repos"
+        echo -e "  ${B}${G}3${R}  Delete a repo"
+        echo -e "  ${B}${G}4${R}  Show repo sizes"
+        echo -e "  ${B}${G}5${R}  Show folder tree"
+        echo -e "  ${B}${G}0${R}  Back"
         echo ""
         read -r -p "$(echo -e "${B}${C}[ZorkSec/RepoMgr]${R} Select: ")" ch
         case "$ch" in
             0) break ;;
-            1) echo ""; find "${TOOLS_DIR}" -name ".git" -type d 2>/dev/null | while read -r gd; do echo "  $(dirname "$gd")" | sed "s|${TOOLS_DIR}/||"; done | sort ;;
+            1) find "${TOOLS_DIR}" -name ".git" -type d 2>/dev/null | while read -r gd; do echo "  $(dirname "$gd")" | sed "s|${TOOLS_DIR}/||"; done | sort ;;
             2) find "${TOOLS_DIR}" -name ".git" -type d 2>/dev/null | while read -r gd; do
                 rd=$(dirname "$gd"); echo -e "${C}[*] $(basename "$rd")${R}"
-                (cd "$rd" && git pull --ff-only 2>/dev/null) || echo -e "  ${Y}⚠ Failed${R}"
+                (cd "$rd" && git pull --ff-only 2>/dev/null) || echo "  ${Y}⚠ Failed${R}"
                done ;;
-            3) echo ""; local i=1; local -a repos=()
+            3) local i=1; local -a repos=()
                while IFS= read -r gd; do
                    rd=$(dirname "$gd"); repos+=("$rd")
                    echo "  $i) $(echo "$rd" | sed "s|${TOOLS_DIR}/||")"
                    i=$((i+1))
                done < <(find "${TOOLS_DIR}" -name ".git" -type d 2>/dev/null)
                echo ""; read -r -p "Enter number to delete: " dn
-               if [[ "$dn" =~ ^[0-9]+$ ]] && [ "$dn" -le "${#repos[@]}" ]; then
-                   confirm "Delete $(basename "${repos[$((dn-1))]}")?" && rm -rf "${repos[$((dn-1))]}" && echo -e "${G}✓ Deleted${R}"
-               fi ;;
-            4) echo ""; du -sh "${TOOLS_DIR}"/*/ 2>/dev/null | sort -rh | head -20 ;;
+               [[ "$dn" =~ ^[0-9]+$ ]] && [ "$dn" -le "${#repos[@]}" ] && confirm "Delete?" && rm -rf "${repos[$((dn-1))]}" && echo -e "${G}✓ Deleted${R}" ;;
+            4) du -sh "${TOOLS_DIR}"/*/ 2>/dev/null | sort -rh | head -25 ;;
+            5) echo ""; find "${TOOLS_DIR}" -maxdepth 3 -type d 2>/dev/null | sort | head -50 ;;
         esac
-        echo ""; read -r -p "Press Enter to continue..."
+        echo ""; read -r -p "Press Enter..."
     done
 }
 
-# ====================== SHOW INSTALLED ======================
-show_installed() {
-    section "INSTALLED TOOLS"
-    [ ! -f "${PKG_DB}" ] && echo -e "${Y}[!] No installation records${R}" && return
-    echo -e "${D}────────────────────────────────────────────────────────${R}"
-    local cat=""
-    while IFS='|' read -r ts c n s; do
-        [ "$c" != "$cat" ] && echo "" && echo -e "${B}${BLE}► ${c}${R}" && cat="$c"
-        local scolor="${G}"; [ "$s" = "failed" ] && scolor="${Rr}"; [ "$s" = "skipped" ] && scolor="${Y}"
-        printf "  %-18s ${scolor}%-10s${R}\n" "$n" "$s"
-    done < "${PKG_DB}"
-    echo ""; echo -e "${D}Total: $(wc -l < "${PKG_DB}") records${R}"
-}
-
 # ====================== BACKUP / RESTORE ======================
-backup_config() {
-    section "BACKUP CONFIGURATION"
-    local bk="${BACKUP_DIR}/zorksec-backup-$(date '+%Y%m%d-%H%M%S').tar.gz"
-    tar -czf "$bk" -C "${CONFIG_DIR}" . 2>/dev/null && echo -e "${G}✓ Backup saved: ${bk}${R}" || echo -e "${Rr}✗ Backup failed${R}"
-}
-
+backup_config() { section "BACKUP"; local bk="${BACKUP_DIR}/zorksec-backup-$(date '+%Y%m%d-%H%M%S').tar.gz"; tar -czf "$bk" -C "${CONFIG_DIR}" . 2>/dev/null && echo -e "${G}✓ Saved: ${bk}${R}" || echo -e "${Rr}✗ Failed${R}"; }
 restore_config() {
-    section "RESTORE CONFIGURATION"
+    section "RESTORE"
     local backups=($(ls -t "${BACKUP_DIR}"/*.tar.gz 2>/dev/null))
-    [ ${#backups[@]} -eq 0 ] && echo -e "${Y}[!] No backups found${R}" && return
+    [ ${#backups[@]} -eq 0 ] && echo -e "${Y}[!] No backups${R}" && return
     local i=1
     for b in "${backups[@]}"; do echo "  $i) $(basename "$b")"; i=$((i+1)); done
-    echo ""; read -r -p "Select backup to restore: " ch
-    [[ "$ch" =~ ^[0-9]+$ ]] && [ "$ch" -le "${#backups[@]}" ] && {
-        tar -xzf "${backups[$((ch-1))]}" -C "${CONFIG_DIR}" 2>/dev/null
-        echo -e "${G}✓ Restored from: $(basename "${backups[$((ch-1))]}")${R}"
-    }
+    read -r -p "Select: " ch
+    [[ "$ch" =~ ^[0-9]+$ ]] && [ "$ch" -le "${#backups[@]}" ] && tar -xzf "${backups[$((ch-1))]}" -C "${CONFIG_DIR}" 2>/dev/null && echo -e "${G}✓ Restored${R}"
 }
 
 # ====================== ABOUT ======================
@@ -1099,24 +725,27 @@ about() {
     section "ABOUT ZORKSEC-TERMUX"
     echo -e "  ${B}Version:${R}      ${VERSION}"
     echo -e "  ${B}Author:${R}       ${AUTHOR}"
-    echo -e "  ${B}Platform:${R}     Termux (Android 10+ / ARM64 / ARM / x86_64)"
-    echo -e "  ${B}Repository:${R}   ${REPO_URL}"
+    echo -e "  ${B}Platform:${R}     Termux (Android)"
     echo -e "  ${B}License:${R}      MIT"
     echo ""
-    echo -e "  ${D}ZorkSec-Termux is a professional open-source cybersecurity${R}"
-    echo -e "  ${D}platform for Android/Termux. It automates installation,${R}"
-    echo -e "  ${D}management, verification, updating, and execution of${R}"
-    echo -e "  ${D}200+ cybersecurity tools.${R}"
+    echo -e "  ${D}All 200+ tools are cloned directly from their official${R}"
+    echo -e "  ${D}GitHub repositories into:${R}"
+    echo -e "  ${D}${TOOLS_DIR}/Category/ToolName/${R}"
     echo ""
-    echo -e "  ${B}Features:${R}"
-    echo -e "   • One-click installation of all tools"
-    echo -e "   • Categorized menus with Install-All or per-tool selection"
-    echo -e "   • Automatic dependency resolution (pip, go, cargo, npm, gem)"
-    echo -e "   • Tool verification after every installation"
-    echo -e "   • Automatic repair of failed/broken packages"
-    echo -e "   • Comprehensive logging and health checks"
-    echo -e "   • Backup & restore configuration"
-    echo -e "   • Tools available directly from your Termux terminal"
+    echo -e "  ${B}How to use installed tools:${R}"
+    echo -e "  1) Run directly from terminal (symlinked):"
+    echo -e "     ${D}nmap -sV target.com${R}"
+    echo -e "     ${D}subfinder -d example.com${R}"
+    echo -e "     ${D}hydra -l admin -P rockyou.txt ssh://target${R}"
+    echo -e ""
+    echo -e "  2) Navigate to the tool directory:"
+    echo -e "     ${D}cd ~/zorksec-tools/08-Password-Attack/john/${R}"
+    echo -e "     ${D}./john --list=formats${R}"
+    echo ""
+    echo -e "  ${B}Categories:${R}"
+    for d in 01-Information-Gathering 02-OSINT 03-Subdomain-Enumeration 04-DNS-Tools 05-Web-Security 06-Network-Tools 07-Wireless-Security 08-Password-Attack 09-Exploitation 10-Post-Exploitation 11-Reverse-Engineering 12-Malware-Analysis 13-Digital-Forensics 14-Threat-Intelligence 15-Additional-Attack-Tools; do
+        echo -e "   ${D}${d}${R}"
+    done
 }
 
 # ====================== SUMMARY ======================
@@ -1128,53 +757,45 @@ show_summary() {
     echo -e " ${B}Total:${R}       ${TOTAL_PACKAGES}"
     echo -e " ${G}✓ Installed:${R} ${INSTALLED_COUNT}"
     echo -e " ${Y}⚠ Skipped:${R}   ${SKIPPED_COUNT}"
-    echo -e " ${BLE}↻ Updated:${R}   ${UPDATED_COUNT}"
     echo -e " ${Rr}✗ Failed:${R}     ${FAILED_COUNT}"
     [ -n "$FAILED_TOOLS" ] && echo -e " ${Rr}Failed:${R}     ${FAILED_TOOLS}"
     echo -e " ${D}Time:${R}        $((dur/60))m $((dur%60))s"
-    echo -e " ${D}Storage:${R}     ${stor}"
+    echo -e " ${D}Storage:${R}     ${stor} (${TOOLS_DIR})"
     echo -e " ${D}Logs:${R}        ${LOG_DIR}/"
     echo -e "${B}${C}═══════════════════════════════════════════════════════════${R}"
 }
-
-# ====================== EXIT HANDLER ======================
-cleanup() {
-    echo -e "\n${Y}[!] Interrupted.${R}"
-    show_summary; exit 1
-}
-trap cleanup SIGINT SIGTERM
 
 # ====================== MAIN MENU ======================
 main_menu() {
     while true; do
         banner
         echo -e "${B}${BLE}┌───────────────────── MAIN MENU ─────────────────────┐${R}"
-        echo -e "${B}${BLE}│${R} ${G} 1${R}  Install Everything                     ${B}${BLE}│${R}"
-        echo -e "${B}${BLE}│${R} ${G} 2${R}  Information Gathering                  ${B}${BLE}│${R}"
-        echo -e "${B}${BLE}│${R} ${G} 3${R}  OSINT                                 ${B}${BLE}│${R}"
-        echo -e "${B}${BLE}│${R} ${G} 4${R}  Subdomain Enumeration                 ${B}${BLE}│${R}"
-        echo -e "${B}${BLE}│${R} ${G} 5${R}  DNS Tools                             ${B}${BLE}│${R}"
-        echo -e "${B}${BLE}│${R} ${G} 6${R}  Web Application Security              ${B}${BLE}│${R}"
-        echo -e "${B}${BLE}│${R} ${G} 7${R}  Network Tools                         ${B}${BLE}│${R}"
-        echo -e "${B}${BLE}│${R} ${G} 8${R}  Wireless Security                     ${B}${BLE}│${R}"
-        echo -e "${B}${BLE}│${R} ${G} 9${R}  Password Auditing                     ${B}${BLE}│${R}"
-        echo -e "${B}${BLE}│${R} ${G}10${R}  Exploitation                          ${B}${BLE}│${R}"
-        echo -e "${B}${BLE}│${R} ${G}11${R}  Post Exploitation                     ${B}${BLE}│${R}"
-        echo -e "${B}${BLE}│${R} ${G}12${R}  Reverse Engineering                   ${B}${BLE}│${R}"
-        echo -e "${B}${BLE}│${R} ${G}13${R}  Malware Analysis                      ${B}${BLE}│${R}"
-        echo -e "${B}${BLE}│${R} ${G}14${R}  Digital Forensics                     ${B}${BLE}│${R}"
-        echo -e "${B}${BLE}│${R} ${G}15${R}  Threat Intelligence                   ${B}${BLE}│${R}"
-        echo -e "${B}${BLE}│${R} ${G}16${R}  Utilities                             ${B}${BLE}│${R}"
-        echo -e "${B}${BLE}│${R} ${Y}17${R}  Update Installed Tools                 ${B}${BLE}│${R}"
-        echo -e "${B}${BLE}│${R} ${Y}18${R}  Repair Broken Packages                 ${B}${BLE}│${R}"
-        echo -e "${B}${BLE}│${R} ${C}19${R}  Installed Tools List                   ${B}${BLE}│${R}"
-        echo -e "${B}${BLE}│${R} ${C}20${R}  System Health Check                    ${B}${BLE}│${R}"
-        echo -e "${B}${BLE}│${R} ${C}21${R}  Repository Manager                     ${B}${BLE}│${R}"
-        echo -e "${B}${BLE}│${R} ${M}22${R}  Additional Attack Tools (Phishing,MITM)${B}${BLE}│${R}"
-        echo -e "${B}${BLE}│${R} ${M}23${R}  Backup Configuration                   ${B}${BLE}│${R}"
-        echo -e "${B}${BLE}│${R} ${M}24${R}  Restore Configuration                  ${B}${BLE}│${R}"
-        echo -e "${B}${BLE}│${R} ${W}25${R}  About                                 ${B}${BLE}│${R}"
-        echo -e "${B}${BLE}│${R} ${Rr}26${R}  Exit                                  ${B}${BLE}│${R}"
+        echo -e "${B}${BLE}│${R} ${G} 1${R}  Install Everything (All GitHub Repos)        ${B}${BLE}│${R}"
+        echo -e "${B}${BLE}│${R} ${G} 2${R}  01-Information Gathering / Reconnaissance    ${B}${BLE}│${R}"
+        echo -e "${B}${BLE}│${R} ${G} 3${R}  02-OSINT                                    ${B}${BLE}│${R}"
+        echo -e "${B}${BLE}│${R} ${G} 4${R}  03-Subdomain Enumeration                    ${B}${BLE}│${R}"
+        echo -e "${B}${BLE}│${R} ${G} 5${R}  04-DNS Tools                                ${B}${BLE}│${R}"
+        echo -e "${B}${BLE}│${R} ${G} 6${R}  05-Web Application Security                 ${B}${BLE}│${R}"
+        echo -e "${B}${BLE}│${R} ${G} 7${R}  06-Network Tools                            ${B}${BLE}│${R}"
+        echo -e "${B}${BLE}│${R} ${G} 8${R}  07-Wireless Security                        ${B}${BLE}│${R}"
+        echo -e "${B}${BLE}│${R} ${G} 9${R}  08-Password Attack / Auditing               ${B}${BLE}│${R}"
+        echo -e "${B}${BLE}│${R} ${G}10${R}  09-Exploitation & Phishing                   ${B}${BLE}│${R}"
+        echo -e "${B}${BLE}│${R} ${G}11${R}  10-Post Exploitation                        ${B}${BLE}│${R}"
+        echo -e "${B}${BLE}│${R} ${G}12${R}  11-Reverse Engineering                      ${B}${BLE}│${R}"
+        echo -e "${B}${BLE}│${R} ${G}13${R}  12-Malware Analysis                         ${B}${BLE}│${R}"
+        echo -e "${B}${BLE}│${R} ${G}14${R}  13-Digital Forensics                        ${B}${BLE}│${R}"
+        echo -e "${B}${BLE}│${R} ${G}15${R}  14-Threat Intelligence                      ${B}${BLE}│${R}"
+        echo -e "${B}${BLE}│${R} ${G}16${R}  15-Additional Attack Tools (MITM, Phishing) ${B}${BLE}│${R}"
+        echo -e "${B}${BLE}│${R} ${M}17${R}  📦 PACKAGES (Termux Base: python, go, etc.)  ${B}${BLE}│${R}"
+        echo -e "${B}${BLE}│${R} ${Y}18${R}  Update All Cloned Repos                     ${B}${BLE}│${R}"
+        echo -e "${B}${BLE}│${R} ${Y}19${R}  Repair / Re-check Installed Tools           ${B}${BLE}│${R}"
+        echo -e "${B}${BLE}│${R} ${C}20${R}  Show Installed Tools List                   ${B}${BLE}│${R}"
+        echo -e "${B}${BLE}│${R} ${C}21${R}  System Health Check                         ${B}${BLE}│${R}"
+        echo -e "${B}${BLE}│${R} ${C}22${R}  Repository Manager                          ${B}${BLE}│${R}"
+        echo -e "${B}${BLE}│${R} ${W}23${R}  Backup Configuration                        ${B}${BLE}│${R}"
+        echo -e "${B}${BLE}│${R} ${W}24${R}  Restore Configuration                       ${B}${BLE}│${R}"
+        echo -e "${B}${BLE}│${R} ${W}25${R}  About / Help                                ${B}${BLE}│${R}"
+        echo -e "${B}${BLE}│${R} ${Rr}26${R}  Exit                                        ${B}${BLE}│${R}"
         echo -e "${B}${BLE}└────────────────────────────────────────────────────┘${R}"
         echo ""
         read -r -p "$(echo -e "${B}${C}[ZorkSec]${R} Select [1-26]: ")" ch
@@ -1194,13 +815,13 @@ main_menu() {
             13) submenu_malware ;;
             14) submenu_forensics ;;
             15) submenu_threat ;;
-            16) submenu_utilities ;;
-            17) update_all ;;
-            18) repair_broken ;;
-            19) show_installed ;;
-            20) health_check ;;
-            21) repo_manager ;;
-            22) submenu_additional_attacks ;;
+            16) submenu_attacks ;;
+            17) submenu_packages ;;
+            18) update_all ;;
+            19) echo -e "${Y}[!] Run health check first (option 21), then re-install missing tools from each category${R}" ;;
+            20) show_installed ;;
+            21) health_check ;;
+            22) repo_manager ;;
             23) backup_config ;;
             24) restore_config ;;
             25) about ;;
@@ -1211,7 +832,10 @@ main_menu() {
     done
 }
 
-# ====================== ENTRY POINT ======================
-check_termux
+# ====================== ENTRY ======================
+if [ ! -d "${PREFIX:-/data/data/com.termux/files/usr}" ]; then
+    echo -e "${Rr}[!] Must run inside Termux on Android${R}"
+    echo -e "${Y}Download: https://f-droid.org/packages/com.termux/${R}"
+    exit 1
+fi
 main_menu
-
